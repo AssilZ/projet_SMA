@@ -1,93 +1,212 @@
 breed [airplanes airplane]
 
 airplanes-own [
-  type
   fuel-consumption
-  weight
-  time-on-floor
-  distance
+  max-takeoff-weight
+  departure-city
+  arrival-city
+  gas-emitted
+  plane-type
 ]
 
 globals [
   total-gas-emitted
-  departure-city
-  arrival-city
-  city-distances
+  plane-counts
+  city-coordinates
+  max-planes-flying
+  city-names
 ]
+
+to setup-graph
+  clear-all-plots
+  set-current-plot "Pollution Evolution"
+  set-current-plot-pen "gas emission"
+  plot 0
+end
 
 to setup
   clear-all
   reset-ticks
 
   set total-gas-emitted 0
-  set departure-city ""
-  set arrival-city ""
+  set max-planes-flying 10
 
-  set city-distances (list
-    (list "City1" "City2" 500)
-    (list "City1" "City3" 800)
-    (list "City1" "City4" 1200)
-    (list "City1" "City5" 1500)
-    (list "City2" "City3" 600)
-    (list "City2" "City4" 900)
-    (list "City2" "City5" 1300)
-    (list "City3" "City4" 700)
-    (list "City3" "City5" 1100)
-    (list "City4" "City5" 1000)
-  )
+  set plane-counts (list count-plane-type1 count-plane-type2 count-plane-type3)
 
-  create-airplanes 500 [
-    set type one-of ["type1" "type2" "type3"]
-    set fuel-consumption (ifelse-value
-      (type = "type1") [0.1]
-      (type = "type2") [0.2]
-      (type = "type3") [0.3]
-    )
-    set weight (ifelse-value
-      (type = "type1") [10000]
-      (type = "type2") [20000]
-      (type = "type3") [30000]
-    )
-    set time-on-floor random-float 150 + 30
+  set city-coordinates [
+    ["Paris" -50 0]
+    ["Lyon" 50 50]
+    ["Marseille" 100 -50]
+    ["Toulouse" -100 -50]
+    ["Bordeaux" -50 100]
+  ]
+
+  set city-names ["Paris" "Lyon" "Marseille" "Toulouse" "Bordeaux"]
+
+
+  ask patches [
+    set pcolor white
+  ]
+
+  foreach city-coordinates [
+    coordinates ->
+    let city-name item 0 coordinates
+    let x-cor item 1 coordinates
+    let y-cor item 2 coordinates
+    create-turtles 1 [
+      setxy x-cor y-cor
+      set shape "circle"
+      set color blue
+      set size 2
+      set label city-name
+    ]
+  ]
+  setup-graph
+
+end
+
+
+to City1  ; Departure city button
+  let city-index position "City1" ["City1" "City2" "City3" "City4" "City5"]
+  let city-name item city-index city-names
+  ask airplanes [
+    set departure-city city-name
+    set-coordinates
   ]
 end
 
+to City2  ; Departure city button
+  let city-index position "City2" ["City1" "City2" "City3" "City4" "City5"]
+  let city-name item city-index city-names
+  ask airplanes [
+    set departure-city city-name
+    set-coordinates
+  ]
+end
+
+
+to City3  ; Departure city button
+  let city-index position "City3" ["City1" "City2" "City3" "City4" "City5"]
+  let city-name item city-index city-names
+  ask airplanes [
+    set departure-city city-name
+    set-coordinates
+  ]
+end
+
+to City4  ; Departure city button
+  let city-index position "City4" ["City1" "City2" "City3" "City4" "City5"]
+  let city-name item city-index city-names
+  ask airplanes [
+    set departure-city city-name
+    set-coordinates
+  ]
+end
+
+to City5  ; Departure city button
+  let city-index position "City5" ["City1" "City2" "City3" "City4" "City5"]
+  let city-name item city-index city-names
+  ask airplanes [
+    set departure-city city-name
+    set-coordinates
+  ]
+end
+
+
+
+to Arrival-City1  ; Arrival city button
+  let city-index position "City1" ["City1" "City2" "City3" "City4" "City5"]
+  let city-name item city-index city-names
+  ask airplanes [
+    set arrival-city city-name
+    set-coordinates
+  ]
+end
+
+to Arrival-City2  ; Arrival city button
+  let city-index position "City2" ["City1" "City2" "City3" "City4" "City5"]
+  let city-name item city-index city-names
+  ask airplanes [
+    set arrival-city city-name
+    set-coordinates
+  ]
+end
+
+
+to Arrival-City3  ; Arrival city button
+  let city-index position "City3" ["City1" "City2" "City3" "City4" "City5"]
+  let city-name item city-index city-names
+  ask airplanes [
+    set arrival-city city-name
+    set-coordinates
+  ]
+end
+
+to Arrival-City4  ; Arrival city button
+  let city-index position "City4" ["City1" "City2" "City3" "City4" "City5"]
+  let city-name item city-index city-names
+  ask airplanes [
+    set arrival-city city-name
+    set-coordinates
+  ]
+end
+
+to Arrival-City5  ; Arrival city button
+  let city-index position "City5" ["City1" "City2" "City3" "City4" "City5"]
+  let city-name item city-index city-names
+  ask airplanes [
+    set arrival-city city-name
+    set-coordinates
+  ]
+end
+
+
+to setup-map
+  import-pcolors "map-france.png"
+end
+
+
+
+
 to go
-  if departure-city = "" or arrival-city = "" [
-    user-message "Please select departure and arrival cities."
-    stop
+  if count airplanes < max-planes-flying and sum plane-counts > 0 [
+    create-airplanes 1 [
+      set plane-type random 3
+      set fuel-consumption (ifelse-value (plane-type = 0) [11400] (plane-type = 1) [14400] (plane-type = 2) [2100])
+      set max-takeoff-weight (ifelse-value (plane-type = 0) [560000] (plane-type = 1) [116000] (plane-type = 2) [78000])
+      set departure-city one-of ["Paris" "Lyon" "Marseille" "Toulouse" "Bordeaux"]
+      set arrival-city one-of (remove departure-city ["Paris" "Lyon" "Marseille" "Toulouse" "Bordeaux"])
+      set-coordinates
+      set plane-counts replace-item plane-type plane-counts (item plane-type plane-counts - 1)
+    ]
   ]
 
   ask airplanes [
-    set distance get-city-distance departure-city arrival-city
-    let gas-emitted (fuel-consumption * weight * time-on-floor / 60) + (fuel-consumption * weight * distance / 1000)
+  let arrival-coordinates get-arrival-coordinates
+  ifelse distance arrival-coordinates < 1 [
+    ; Plane has arrived, handle emissions and remove plane
+    set gas-emitted (fuel-consumption * max-takeoff-weight * time-on-floor / 60) / 1000
     set total-gas-emitted total-gas-emitted + gas-emitted
+    die
+  ] [
+    ; Move the plane towards the arrival city
+    fd 1  ; Adjust the speed as desired
   ]
-
+]
   tick
 end
 
-to select-departure-city [city]
-  set departure-city city
+to set-coordinates
+  let departure-coordinates item 1 (filter [city-info -> item 0 city-info = departure-city] city-coordinates)
+  let arrival-coordinates get-arrival-coordinates
+  let x-diff item 0 arrival-coordinates - item 0 departure-coordinates
+  let y-diff item 1 arrival-coordinates - item 1 departure-coordinates
+  setxy (item 0 departure-coordinates) (item 1 departure-coordinates)
+  facexy (item 0 arrival-coordinates) (item 1 arrival-coordinates)
 end
 
-to select-arrival-city [city]
-  set arrival-city city
-end
-
-to-report get-city-distance [city1 city2]
-  let distance-entry find (list city1 city2) city-distances
-  if distance-entry = false [
-    set distance-entry find (list city2 city1) city-distances
-  ]
-  if distance-entry = false [
-    report 0
-  ]
-  report item 2 item distance-entry city-distances
-end
-
-to-report get-total-gas-emitted
-  report total-gas-emitted
+to-report get-arrival-coordinates
+  report item 1 (filter [ city-info -> item 0 city-info = arrival-city ] city-coordinates)
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -120,10 +239,10 @@ ticks
 BUTTON
 10
 13
-73
+74
 46
 NIL
-Init
+Setup
 NIL
 1
 T
@@ -217,7 +336,7 @@ BUTTON
 128
 507
 NIL
-City1
+City1\n
 NIL
 1
 T
@@ -404,7 +523,7 @@ NIL
 TEXTBOX
 15
 482
-165
+74
 500
 Departure
 10
@@ -457,7 +576,7 @@ MONITOR
 810
 74
 NIL
-Gas emitted (C02 in kg)
+total-gas-emitted
 17
 1
 11
@@ -467,7 +586,7 @@ PLOT
 94
 1012
 353
-Evolution of the pollution
+Pollution Evolution
 NIL
 NIL
 0.0
