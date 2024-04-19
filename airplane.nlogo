@@ -43,7 +43,6 @@ to setup
 
   set city-names ["Paris" "Lyon" "Marseille" "Toulouse" "Bordeaux"]
 
-
   ask patches [
     set pcolor white
   ]
@@ -62,111 +61,65 @@ to setup
     ]
   ]
   setup-graph
-
 end
 
-
-to City1  ; Departure city button
-  let city-index position "City1" ["City1" "City2" "City3" "City4" "City5"]
-  let city-name item city-index city-names
+to set-departure-city [city-name]
   ask airplanes [
     set departure-city city-name
     set-coordinates
   ]
+end
+
+to set-arrival-city [city-name]
+  ask airplanes [
+    set arrival-city city-name
+    set-coordinates
+  ]
+end
+
+to City1  ; Departure city button
+  set-departure-city "Paris"
 end
 
 to City2  ; Departure city button
-  let city-index position "City2" ["City1" "City2" "City3" "City4" "City5"]
-  let city-name item city-index city-names
-  ask airplanes [
-    set departure-city city-name
-    set-coordinates
-  ]
+  set-departure-city "Lyon"
 end
 
-
 to City3  ; Departure city button
-  let city-index position "City3" ["City1" "City2" "City3" "City4" "City5"]
-  let city-name item city-index city-names
-  ask airplanes [
-    set departure-city city-name
-    set-coordinates
-  ]
+  set-departure-city "Marseille"
 end
 
 to City4  ; Departure city button
-  let city-index position "City4" ["City1" "City2" "City3" "City4" "City5"]
-  let city-name item city-index city-names
-  ask airplanes [
-    set departure-city city-name
-    set-coordinates
-  ]
+  set-departure-city "Toulouse"
 end
 
 to City5  ; Departure city button
-  let city-index position "City5" ["City1" "City2" "City3" "City4" "City5"]
-  let city-name item city-index city-names
-  ask airplanes [
-    set departure-city city-name
-    set-coordinates
-  ]
+  set-departure-city "Bordeaux"
 end
 
-
-
 to Arrival-City1  ; Arrival city button
-  let city-index position "City1" ["City1" "City2" "City3" "City4" "City5"]
-  let city-name item city-index city-names
-  ask airplanes [
-    set arrival-city city-name
-    set-coordinates
-  ]
+  set-arrival-city "Paris"
 end
 
 to Arrival-City2  ; Arrival city button
-  let city-index position "City2" ["City1" "City2" "City3" "City4" "City5"]
-  let city-name item city-index city-names
-  ask airplanes [
-    set arrival-city city-name
-    set-coordinates
-  ]
+  set-arrival-city "Lyon"
 end
 
-
 to Arrival-City3  ; Arrival city button
-  let city-index position "City3" ["City1" "City2" "City3" "City4" "City5"]
-  let city-name item city-index city-names
-  ask airplanes [
-    set arrival-city city-name
-    set-coordinates
-  ]
+  set-arrival-city "Marseille"
 end
 
 to Arrival-City4  ; Arrival city button
-  let city-index position "City4" ["City1" "City2" "City3" "City4" "City5"]
-  let city-name item city-index city-names
-  ask airplanes [
-    set arrival-city city-name
-    set-coordinates
-  ]
+  set-arrival-city "Toulouse"
 end
 
 to Arrival-City5  ; Arrival city button
-  let city-index position "City5" ["City1" "City2" "City3" "City4" "City5"]
-  let city-name item city-index city-names
-  ask airplanes [
-    set arrival-city city-name
-    set-coordinates
-  ]
+  set-arrival-city "Bordeaux"
 end
-
 
 to setup-map
   import-pcolors "map-france.png"
 end
-
-
-
 
 to go
   if count airplanes < max-planes-flying and sum plane-counts > 0 [
@@ -182,31 +135,34 @@ to go
   ]
 
   ask airplanes [
-  let arrival-coordinates get-arrival-coordinates
-  ifelse distance arrival-coordinates < 1 [
-    ; Plane has arrived, handle emissions and remove plane
-    set gas-emitted (fuel-consumption * max-takeoff-weight * time-on-floor / 60) / 1000
-    set total-gas-emitted total-gas-emitted + gas-emitted
-    die
-  ] [
-    ; Move the plane towards the arrival city
-    fd 1  ; Adjust the speed as desired
+    let arrival-coordinates get-arrival-coordinates
+    ifelse distance arrival-coordinates < 1 [
+      ; Plane has arrived, handle emissions and remove plane
+      set gas-emitted (fuel-consumption * max-takeoff-weight) / 1000
+      set total-gas-emitted total-gas-emitted + gas-emitted
+      die
+    ] [
+      ; Move the plane towards the arrival city
+      fd 1  ; Adjust the speed as desired
+    ]
   ]
-]
   tick
 end
 
 to set-coordinates
-  let departure-coordinates item 1 (filter [city-info -> item 0 city-info = departure-city] city-coordinates)
+  let departure-coordinates get-city-coordinates departure-city
   let arrival-coordinates get-arrival-coordinates
-  let x-diff item 0 arrival-coordinates - item 0 departure-coordinates
-  let y-diff item 1 arrival-coordinates - item 1 departure-coordinates
-  setxy (item 0 departure-coordinates) (item 1 departure-coordinates)
-  facexy (item 0 arrival-coordinates) (item 1 arrival-coordinates)
+  setxy (item 1 departure-coordinates) (item 2 departure-coordinates)
+  facexy (item 1 arrival-coordinates) (item 2 arrival-coordinates)
 end
 
 to-report get-arrival-coordinates
-  report item 1 (filter [ city-info -> item 0 city-info = arrival-city ] city-coordinates)
+  report get-city-coordinates arrival-city
+end
+
+to-report get-city-coordinates [city]
+  let city-info one-of (filter [ city-info -> item 0 city-info = city ] city-coordinates)
+  report item 1 city-info
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
