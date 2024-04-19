@@ -7,6 +7,7 @@ airplanes-own [
   arrival-city
   gas-emitted
   plane-type
+  arrival-coordinates
 ]
 
 globals [
@@ -61,6 +62,8 @@ to setup
     ]
   ]
   setup-graph
+  reset-ticks
+  go  ; Start the simulation automatically
 end
 
 to set-departure-city [city-name]
@@ -135,8 +138,9 @@ to go
   ]
 
   ask airplanes [
-    let arrival-coordinates get-arrival-coordinates
-    ifelse distance arrival-coordinates < 1 [
+    let target-xcor item 0 arrival-coordinates
+    let target-ycor item 1 arrival-coordinates
+    ifelse distancexy target-xcor target-ycor < 1 [
       ; Plane has arrived, handle emissions and remove plane
       set gas-emitted (fuel-consumption * max-takeoff-weight) / 1000
       set total-gas-emitted total-gas-emitted + gas-emitted
@@ -147,13 +151,17 @@ to go
     ]
   ]
   tick
+  do-plot
+  if ticks mod 10 = 0 [  ; Adjust the number to control the delay between each tick
+    display
+  ]
 end
 
 to set-coordinates
   let departure-coordinates get-city-coordinates departure-city
-  let arrival-coordinates get-arrival-coordinates
-  setxy (item 1 departure-coordinates) (item 2 departure-coordinates)
-  facexy (item 1 arrival-coordinates) (item 2 arrival-coordinates)
+  set arrival-coordinates get-arrival-coordinates
+  setxy item 1 departure-coordinates item 2 departure-coordinates
+  facexy item 1 arrival-coordinates item 2 arrival-coordinates
 end
 
 to-report get-arrival-coordinates
@@ -161,8 +169,13 @@ to-report get-arrival-coordinates
 end
 
 to-report get-city-coordinates [city]
-  let city-info one-of (filter [ city-info -> item 0 city-info = city ] city-coordinates)
-  report item 1 city-info
+  report one-of (filter [ coord -> item 0 coord = city ] city-coordinates)
+end
+
+to do-plot
+  set-current-plot "Pollution Evolution"
+  set-current-plot-pen "gas emission"
+  plot total-gas-emitted
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
