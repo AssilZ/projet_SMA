@@ -63,7 +63,6 @@ to setup
   ]
   setup-graph
   reset-ticks
-  go  ; Start the simulation automatically
 end
 
 to set-departure-city [city-name]
@@ -138,8 +137,8 @@ to go
   ]
 
   ask airplanes [
-    let target-xcor item 0 arrival-coordinates
-    let target-ycor item 1 arrival-coordinates
+    let target-xcor item 1 arrival-coordinates
+    let target-ycor item 2 arrival-coordinates
     ifelse distancexy target-xcor target-ycor < 1 [
       ; Plane has arrived, handle emissions and remove plane
       set gas-emitted (fuel-consumption * max-takeoff-weight) / 1000
@@ -150,9 +149,15 @@ to go
       fd 1  ; Adjust the speed as desired
     ]
   ]
-  tick
+
   do-plot
-  if ticks mod 10 = 0 [  ; Adjust the number to control the delay between each tick
+  tick
+end
+
+to start
+  setup
+  while [true] [
+    go
     display
   ]
 end
@@ -229,7 +234,7 @@ BUTTON
 80
 NIL
 Go
-NIL
+T
 1
 T
 OBSERVER
@@ -263,7 +268,7 @@ count-plane-type2
 count-plane-type2
 0
 100
-20.0
+71.0
 1
 1
 NIL
