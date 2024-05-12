@@ -29,17 +29,20 @@ to setup
   clear-all
   reset-ticks
 
+  resize-world 0 400 0 400
+  __change-topology false false
+
   set total-gas-emitted 0
   set max-planes-flying 10
 
   set plane-counts (list count-plane-type1 count-plane-type2 count-plane-type3)
 
   set city-coordinates [
-    ["Paris" -50 0]
-    ["Lyon" 50 50]
-    ["Marseille" 100 -50]
-    ["Toulouse" -100 -50]
-    ["Bordeaux" -50 100]
+    ["Paris" 221 282]
+    ["Lyon" 295 145]
+    ["Marseille" 313 45]
+    ["Toulouse" 193 54]
+    ["Bordeaux" 137 104]
   ]
 
   set city-names ["Paris" "Lyon" "Marseille" "Toulouse" "Bordeaux"]
@@ -47,6 +50,7 @@ to setup
   ask patches [
     set pcolor white
   ]
+  setup-map
 
   foreach city-coordinates [
     coordinates ->
@@ -57,7 +61,7 @@ to setup
       setxy x-cor y-cor
       set shape "circle"
       set color blue
-      set size 2
+      set size 8
       set label city-name
     ]
   ]
@@ -74,28 +78,29 @@ end
 
 to set-arrival-city [city-name]
   ask airplanes [
+    set departure-city one-of (remove city-name ["Paris" "Lyon" "Marseille" "Toulouse" "Bordeaux"])
     set arrival-city city-name
     set-coordinates
   ]
 end
 
-to City1  ; Departure city button
+to Paris  ; Departure city button
   set-departure-city "Paris"
 end
 
-to City2  ; Departure city button
+to Lyon  ; Departure city button
   set-departure-city "Lyon"
 end
 
-to City3  ; Departure city button
+to Marseille  ; Departure city button
   set-departure-city "Marseille"
 end
 
-to City4  ; Departure city button
+to Toulouse  ; Departure city button
   set-departure-city "Toulouse"
 end
 
-to City5  ; Departure city button
+to Bordeaux  ; Departure city button
   set-departure-city "Bordeaux"
 end
 
@@ -126,6 +131,9 @@ end
 to go
   if count airplanes < max-planes-flying and sum plane-counts > 0 [
     create-airplanes 1 [
+      set shape "airplane"
+      set size 15
+      set color red
       set plane-type random 3
       set fuel-consumption (ifelse-value (plane-type = 0) [11400] (plane-type = 1) [14400] (plane-type = 2) [2100])
       set max-takeoff-weight (ifelse-value (plane-type = 0) [560000] (plane-type = 1) [116000] (plane-type = 2) [78000])
@@ -146,7 +154,7 @@ to go
       die
     ] [
       ; Move the plane towards the arrival city
-      fd 1  ; Adjust the speed as desired
+      fd 0.001  ; Adjust the speed as desired
     ]
   ]
 
@@ -186,24 +194,24 @@ end
 GRAPHICS-WINDOW
 210
 10
-647
-448
+619
+420
 -1
 -1
-13.0
+1.0
 1
 10
 1
 1
 1
 0
+0
+0
 1
-1
-1
--16
-16
--16
-16
+0
+400
+0
+400
 0
 0
 1
@@ -310,7 +318,7 @@ BUTTON
 128
 507
 NIL
-City1\n
+Paris
 NIL
 1
 T
@@ -347,7 +355,7 @@ BUTTON
 195
 507
 NIL
-City2
+Lyon
 NIL
 1
 T
@@ -361,10 +369,10 @@ NIL
 BUTTON
 197
 475
-260
+283
 508
 NIL
-City3
+Marseille
 NIL
 1
 T
@@ -376,12 +384,12 @@ NIL
 1
 
 BUTTON
-261
+286
 475
-324
+376
 508
 NIL
-City4
+Bordeaux
 NIL
 1
 T
@@ -393,12 +401,12 @@ NIL
 1
 
 BUTTON
-325
+382
 475
-388
+471
 508
 NIL
-City5
+Toulouse
 NIL
 1
 T
@@ -414,8 +422,8 @@ BUTTON
 534
 127
 567
-NIL
-City1
+Paris
+Arrival-City1
 NIL
 1
 T
@@ -431,8 +439,8 @@ BUTTON
 534
 193
 567
-NIL
-City2
+Lyon
+Arrival-City2
 NIL
 1
 T
@@ -446,10 +454,10 @@ NIL
 BUTTON
 196
 534
-259
+282
 567
-NIL
-City3
+Marseille
+Arrival-City3
 NIL
 1
 T
@@ -461,12 +469,12 @@ NIL
 1
 
 BUTTON
-261
+286
 534
-324
+376
 567
-NIL
-City4
+Bordeaux
+Arrival-City4
 NIL
 1
 T
@@ -478,12 +486,12 @@ NIL
 1
 
 BUTTON
-325
-534
-388
-567
-NIL
-City5
+383
+533
+472
+566
+Toulouse
+Arrival-City5
 NIL
 1
 T
