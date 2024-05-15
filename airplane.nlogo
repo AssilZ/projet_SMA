@@ -16,12 +16,18 @@ globals [
   city-coordinates
   max-planes-flying
   city-names
+  selected-departure-cities
+  selected-arrival-cities
+  report-departure-cities    ; Add this global variable for monitor
+  report-arrival-cities      ; Add this global variable for monitor
+  departure-delay  ; Add this global variable
 ]
 
 to setup-graph
   clear-all-plots
   set-current-plot "Pollution Evolution"
-  set-current-plot-pen "gas emission"
+  set-current-plot-pen "total gas emission"
+
   plot 0
 end
 
@@ -47,6 +53,13 @@ to setup
 
   set city-names ["Paris" "Lyon" "Marseille" "Toulouse" "Bordeaux"]
 
+  set selected-departure-cities []
+  set selected-arrival-cities []
+  set report-departure-cities ""
+  set report-arrival-cities ""
+
+  set departure-delay 0  ; Initialize the delay timer
+
   ask patches [
     set pcolor white
   ]
@@ -70,6 +83,16 @@ to setup
 end
 
 to set-departure-city [city-name]
+  ifelse member? city-name selected-departure-cities [
+    ; City is already selected, so remove it
+    set selected-departure-cities remove city-name selected-departure-cities
+    set report-departure-cities remove city-name report-departure-cities
+  ] [
+    ; City is not selected, so add it
+    set selected-departure-cities lput city-name selected-departure-cities
+    set report-departure-cities sentence report-departure-cities city-name
+  ]
+  display  ; Refresh the monitors
   ask airplanes [
     set departure-city city-name
     set-coordinates
@@ -77,51 +100,61 @@ to set-departure-city [city-name]
 end
 
 to set-arrival-city [city-name]
+  ifelse member? city-name selected-arrival-cities [
+    ; City is already selected, so remove it
+    set selected-arrival-cities remove city-name selected-arrival-cities
+    set report-arrival-cities remove city-name report-arrival-cities
+  ] [
+    ; City is not selected, so add it
+    set selected-arrival-cities lput city-name selected-arrival-cities
+    set report-arrival-cities sentence report-arrival-cities city-name
+  ]
+  display  ; Refresh the monitors
   ask airplanes [
-    set departure-city one-of (remove city-name ["Paris" "Lyon" "Marseille" "Toulouse" "Bordeaux"])
+    set departure-city one-of selected-departure-cities
     set arrival-city city-name
     set-coordinates
   ]
 end
 
-to Paris  ; Departure city button
+to Paris
   set-departure-city "Paris"
 end
 
-to Lyon  ; Departure city button
+to Lyon
   set-departure-city "Lyon"
 end
 
-to Marseille  ; Departure city button
+to Marseille
   set-departure-city "Marseille"
 end
 
-to Toulouse  ; Departure city button
+to Toulouse
   set-departure-city "Toulouse"
 end
 
-to Bordeaux  ; Departure city button
+to Bordeaux
   set-departure-city "Bordeaux"
 end
 
-to Arrival-City1  ; Arrival city button
+to Arrival-City1
   set-arrival-city "Paris"
 end
 
-to Arrival-City2  ; Arrival city button
+to Arrival-City2
   set-arrival-city "Lyon"
 end
 
-to Arrival-City3  ; Arrival city button
+to Arrival-City3
   set-arrival-city "Marseille"
 end
 
-to Arrival-City4  ; Arrival city button
-  set-arrival-city "Toulouse"
+to Arrival-City4
+  set-arrival-city "Bordeaux"
 end
 
-to Arrival-City5  ; Arrival city button
-  set-arrival-city "Bordeaux"
+to Arrival-City5
+  set-arrival-city "Toulouse"
 end
 
 to setup-map
@@ -129,32 +162,51 @@ to setup-map
 end
 
 to go
-  if count airplanes < max-planes-flying and sum plane-counts > 0 [
+  if any? airplanes = false [
+    if (length selected-departure-cities = 0) or (length selected-arrival-cities = 0) or (length selected-departure-cities = 1 and length selected-arrival-cities = 1 and first selected-departure-cities = first selected-arrival-cities) [
+      user-message "SELECT AT LEAST ONE DEPARTURE AND ARRIVAL CITY THAT ARE DIFFERENT"
+      stop
+    ]
+  ]
+
+  if departure-delay > 0 [
+    set departure-delay departure-delay - 1
+  ]
+
+  if departure-delay = 0 and count airplanes < max-planes-flying and sum plane-counts > 0 [
     create-airplanes 1 [
       set shape "airplane"
       set size 15
-      set color red
-      set plane-type random 3
+
+      set plane-type -1
+      while [plane-type = -1 or item plane-type plane-counts = 0] [
+        let random-type random 3
+        if item random-type plane-counts > 0 [
+          set plane-type random-type
+        ]
+      ]
+      set color (ifelse-value (plane-type = 0) [red] (plane-type = 1) [green] (plane-type = 2) [yellow])
+
       set fuel-consumption (ifelse-value (plane-type = 0) [11400] (plane-type = 1) [14400] (plane-type = 2) [2100])
       set max-takeoff-weight (ifelse-value (plane-type = 0) [560000] (plane-type = 1) [116000] (plane-type = 2) [78000])
-      set departure-city one-of ["Paris" "Lyon" "Marseille" "Toulouse" "Bordeaux"]
-      set arrival-city one-of (remove departure-city ["Paris" "Lyon" "Marseille" "Toulouse" "Bordeaux"])
+      set departure-city one-of selected-departure-cities
+      set arrival-city one-of (remove departure-city selected-arrival-cities)
       set-coordinates
       set plane-counts replace-item plane-type plane-counts (item plane-type plane-counts - 1)
     ]
+
+    set departure-delay 10  ; Adjust this value to set the delay duration
   ]
 
   ask airplanes [
     let target-xcor item 1 arrival-coordinates
     let target-ycor item 2 arrival-coordinates
     ifelse distancexy target-xcor target-ycor < 1 [
-      ; Plane has arrived, handle emissions and remove plane
       set gas-emitted (fuel-consumption * max-takeoff-weight) / 1000
       set total-gas-emitted total-gas-emitted + gas-emitted
       die
     ] [
-      ; Move the plane towards the arrival city
-      fd 0.001  ; Adjust the speed as desired
+      fd 1
     ]
   ]
 
@@ -187,7 +239,7 @@ end
 
 to do-plot
   set-current-plot "Pollution Evolution"
-  set-current-plot-pen "gas emission"
+  set-current-plot-pen "total gas emission"
   plot total-gas-emitted
 end
 @#$#@#$#@
@@ -261,7 +313,7 @@ count-plane-type1
 count-plane-type1
 0
 100
-20.0
+32.0
 1
 1
 NIL
@@ -276,7 +328,7 @@ count-plane-type2
 count-plane-type2
 0
 100
-71.0
+7.0
 1
 1
 NIL
@@ -291,7 +343,7 @@ count-plane-type3
 count-plane-type3
 0
 100
-20.0
+90.0
 1
 1
 NIL
@@ -306,7 +358,7 @@ time-on-floor
 time-on-floor
 30
 180
-60.0
+30.0
 1
 1
 min
@@ -579,7 +631,40 @@ true
 true
 "" ""
 PENS
-"gas emission" 1.0 0 -16777216 true "" "plot gas emission"
+"total gas emission" 1.0 0 -16777216 true "" ""
+
+MONITOR
+674
+372
+786
+417
+Airplanes in air
+count airplanes
+17
+1
+11
+
+MONITOR
+657
+484
+949
+529
+Departure Cities
+report-departure-cities
+17
+1
+11
+
+MONITOR
+657
+532
+950
+577
+Arrival Cities
+report-arrival-cities
+17
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
