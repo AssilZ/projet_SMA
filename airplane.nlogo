@@ -8,6 +8,7 @@ airplanes-own [
   gas-emitted
   plane-type
   arrival-coordinates
+  total-time
 ]
 
 globals [
@@ -192,6 +193,9 @@ to go
       set departure-city one-of selected-departure-cities
       set arrival-city one-of (remove departure-city selected-arrival-cities)
       set-coordinates
+      let target-xcor item 1 arrival-coordinates
+      let target-ycor item 2 arrival-coordinates
+      set total-time (distancexy target-xcor target-ycor) / 0.0005
       set plane-counts replace-item plane-type plane-counts (item plane-type plane-counts - 1)
     ]
 
@@ -201,11 +205,11 @@ to go
   ask airplanes [
     let target-xcor item 1 arrival-coordinates
     let target-ycor item 2 arrival-coordinates
+    set gas-emitted (fuel-consumption * 3.1) / total-time
     ifelse distancexy target-xcor target-ycor < 1 [
-      set gas-emitted (fuel-consumption * max-takeoff-weight) / 1000
-      set total-gas-emitted total-gas-emitted + gas-emitted
       die
     ] [
+      set total-gas-emitted total-gas-emitted + gas-emitted
       fd 0.0005
     ]
   ]
@@ -313,7 +317,7 @@ count-plane-type1
 count-plane-type1
 0
 100
-32.0
+19.0
 1
 1
 NIL
@@ -328,7 +332,7 @@ count-plane-type2
 count-plane-type2
 0
 100
-7.0
+33.0
 1
 1
 NIL
@@ -343,7 +347,7 @@ count-plane-type3
 count-plane-type3
 0
 100
-38.0
+16.0
 1
 1
 NIL
@@ -569,7 +573,7 @@ TEXTBOX
 102
 164
 120
-Airbus A380
+Airbus A380 (red)
 10
 0.0
 1
@@ -579,7 +583,7 @@ TEXTBOX
 176
 162
 194
-Boeing 707
+Boeing 707 (green)
 10
 0.0
 1
@@ -589,7 +593,7 @@ TEXTBOX
 244
 162
 262
-Airbus A320
+Airbus A320 (yellow)
 10
 0.0
 1
