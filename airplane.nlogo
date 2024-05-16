@@ -195,7 +195,7 @@ to go
       set plane-counts replace-item plane-type plane-counts (item plane-type plane-counts - 1)
     ]
 
-    set departure-delay 10  ; Adjust this value to set the delay duration
+    set departure-delay time-on-floor * 2000  ; Adjust this value to set the delay duration
   ]
 
   ask airplanes [
@@ -206,7 +206,7 @@ to go
       set total-gas-emitted total-gas-emitted + gas-emitted
       die
     ] [
-      fd 1
+      fd 0.0005
     ]
   ]
 
@@ -343,7 +343,7 @@ count-plane-type3
 count-plane-type3
 0
 100
-90.0
+38.0
 1
 1
 NIL
