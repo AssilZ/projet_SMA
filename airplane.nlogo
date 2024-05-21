@@ -9,6 +9,7 @@ airplanes-own [
   plane-type
   arrival-coordinates
   total-time
+  departure-time
 ]
 
 globals [
@@ -22,15 +23,18 @@ globals [
   report-departure-cities    ; Add this global variable for monitor
   report-arrival-cities      ; Add this global variable for monitor
   departure-delay  ; Add this global variable
+  total-gas-emitted-type1
+  total-gas-emitted-type2
+  total-gas-emitted-type3
+  total-gas-emitted-type4
 ]
 
 to setup-graph
   clear-all-plots
   set-current-plot "Pollution Evolution"
-  set-current-plot-pen "total gas emission"
-
   plot 0
 end
+
 
 to setup
   clear-all
@@ -42,7 +46,12 @@ to setup
   set total-gas-emitted 0
   set max-planes-flying 10
 
-  set plane-counts (list count-plane-type1 count-plane-type2 count-plane-type3)
+  set total-gas-emitted-type1 0
+  set total-gas-emitted-type2 0
+  set total-gas-emitted-type3 0
+  set total-gas-emitted-type4 0
+
+  set plane-counts (list count-plane-type1 count-plane-type2 count-plane-type3 count-plane-type4)
 
   set city-coordinates [
     ["Paris" 221 282]
@@ -181,49 +190,56 @@ to go
 
       set plane-type -1
       while [plane-type = -1 or item plane-type plane-counts = 0] [
-        let random-type random 3
+        let random-type random 4
         if item random-type plane-counts > 0 [
           set plane-type random-type
         ]
       ]
-      set color (ifelse-value (plane-type = 0) [red] (plane-type = 1) [green] (plane-type = 2) [yellow])
+      set color (ifelse-value (plane-type = 0) [red] (plane-type = 1) [green] (plane-type = 2) [yellow] (plane-type = 3) [pink])
 
-      set fuel-consumption (ifelse-value (plane-type = 0) [11400] (plane-type = 1) [14400] (plane-type = 2) [2100])
-      set max-takeoff-weight (ifelse-value (plane-type = 0) [560000] (plane-type = 1) [116000] (plane-type = 2) [78000])
+      set fuel-consumption (ifelse-value (plane-type = 0) [11400] (plane-type = 1) [14400] (plane-type = 2) [2100] (plane-type = 3) [custom-fuel-consumption])
+      set max-takeoff-weight (ifelse-value (plane-type = 0) [560000] (plane-type = 1) [116000] (plane-type = 2) [78000] (plane-type = 3) [custom-max-takeoff-weight])
       set departure-city one-of selected-departure-cities
       set arrival-city one-of (remove departure-city selected-arrival-cities)
       set-coordinates
       let target-xcor item 1 arrival-coordinates
       let target-ycor item 2 arrival-coordinates
-      set total-time (distancexy target-xcor target-ycor) / 0.0005
+      set total-time (distancexy target-xcor target-ycor) / 0.005
       set plane-counts replace-item plane-type plane-counts (item plane-type plane-counts - 1)
+      set departure-time ticks
     ]
 
-    set departure-delay time-on-floor * 2000  ; Adjust this value to set the delay duration
+    set departure-delay time-on-floor * 200  ; Adjust this value to set the delay durations
   ]
 
   ask airplanes [
     let target-xcor item 1 arrival-coordinates
     let target-ycor item 2 arrival-coordinates
-    set gas-emitted (fuel-consumption * 3.1) / total-time
+
+    (ifelse ticks - departure-time < (total-time / 10) [
+      set gas-emitted (2 * fuel-consumption * 3.1) / total-time
+    ]
+    ticks - departure-time > (total-time - (total-time / 10)) [
+      set gas-emitted (0.5 * fuel-consumption * 3.1) / total-time
+    ] [
+      set gas-emitted (fuel-consumption * 3.1) / total-time
+    ])
+
+    set total-gas-emitted total-gas-emitted + gas-emitted
+    if plane-type = 0 [ set total-gas-emitted-type1 total-gas-emitted-type1 + gas-emitted ]
+    if plane-type = 1 [ set total-gas-emitted-type2 total-gas-emitted-type2 + gas-emitted ]
+    if plane-type = 2 [ set total-gas-emitted-type3 total-gas-emitted-type3 + gas-emitted ]
+    if plane-type = 3 [ set total-gas-emitted-type4 total-gas-emitted-type4 + gas-emitted ]
+
     ifelse distancexy target-xcor target-ycor < 1 [
       die
     ] [
-      set total-gas-emitted total-gas-emitted + gas-emitted
-      fd 0.0005
+      fd 0.005
     ]
   ]
 
   do-plot
   tick
-end
-
-to start
-  setup
-  while [true] [
-    go
-    display
-  ]
 end
 
 to set-coordinates
@@ -245,6 +261,18 @@ to do-plot
   set-current-plot "Pollution Evolution"
   set-current-plot-pen "total gas emission"
   plot total-gas-emitted
+
+  set-current-plot-pen "type 1 gas emission"
+  plot total-gas-emitted-type1
+
+  set-current-plot-pen "type 2 gas emission"
+  plot total-gas-emitted-type2
+
+  set-current-plot-pen "type 3 gas emission"
+  plot total-gas-emitted-type3
+
+  set-current-plot-pen "type 4 gas emission"
+  plot total-gas-emitted-type4
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -317,7 +345,7 @@ count-plane-type1
 count-plane-type1
 0
 100
-19.0
+17.0
 1
 1
 NIL
@@ -325,39 +353,39 @@ HORIZONTAL
 
 SLIDER
 9
-191
+174
 181
-224
+207
 count-plane-type2
 count-plane-type2
 0
 100
-33.0
+37.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-9
-258
-181
-291
+10
+226
+182
+259
 count-plane-type3
 count-plane-type3
 0
 100
-16.0
+25.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-9
-348
-181
-381
+11
+537
+183
+570
 time-on-floor
 time-on-floor
 30
@@ -369,10 +397,10 @@ min
 HORIZONTAL
 
 BUTTON
-65
-474
-128
-507
+51
+603
+114
+636
 NIL
 Paris
 NIL
@@ -386,30 +414,30 @@ NIL
 1
 
 TEXTBOX
-11
-436
-161
-454
+13
+575
+163
+593
 Distance
 12
 0.0
 1
 
 TEXTBOX
-28
-541
-160
-559
+14
+670
+146
+688
 Arrival
 11
 0.0
 1
 
 BUTTON
-132
-474
-195
-507
+118
+603
+181
+636
 NIL
 Lyon
 NIL
@@ -423,10 +451,10 @@ NIL
 1
 
 BUTTON
-197
-475
-283
-508
+183
+604
+269
+637
 NIL
 Marseille
 NIL
@@ -440,10 +468,10 @@ NIL
 1
 
 BUTTON
-286
-475
-376
-508
+272
+604
+362
+637
 NIL
 Bordeaux
 NIL
@@ -457,10 +485,10 @@ NIL
 1
 
 BUTTON
-382
-475
-471
-508
+368
+604
+457
+637
 NIL
 Toulouse
 NIL
@@ -474,10 +502,10 @@ NIL
 1
 
 BUTTON
-64
-534
-127
-567
+50
+663
+113
+696
 Paris
 Arrival-City1
 NIL
@@ -491,10 +519,10 @@ NIL
 1
 
 BUTTON
-130
-534
-193
-567
+116
+663
+179
+696
 Lyon
 Arrival-City2
 NIL
@@ -508,10 +536,10 @@ NIL
 1
 
 BUTTON
-196
-534
-282
-567
+182
+663
+268
+696
 Marseille
 Arrival-City3
 NIL
@@ -525,10 +553,10 @@ NIL
 1
 
 BUTTON
-286
-534
-376
-567
+272
+663
+362
+696
 Bordeaux
 Arrival-City4
 NIL
@@ -542,10 +570,10 @@ NIL
 1
 
 BUTTON
-383
-533
-472
-566
+369
+662
+458
+695
 Toulouse
 Arrival-City5
 NIL
@@ -559,10 +587,10 @@ NIL
 1
 
 TEXTBOX
-15
-482
-74
-500
+1
+611
+60
+629
 Departure
 10
 0.0
@@ -580,29 +608,29 @@ Airbus A380 (red)
 
 TEXTBOX
 12
-176
+159
 162
-194
+177
 Boeing 707 (green)
 10
 0.0
 1
 
 TEXTBOX
-12
-244
-162
-262
+13
+212
+163
+230
 Airbus A320 (yellow)
 10
 0.0
 1
 
 TEXTBOX
-11
-325
-161
-348
+13
+514
+163
+537
 Temps passé au sol
 10
 0.0
@@ -636,6 +664,10 @@ true
 "" ""
 PENS
 "total gas emission" 1.0 0 -16777216 true "" ""
+"type 1 gas emission" 1.0 0 -2674135 true "" ""
+"type 2 gas emission" 1.0 0 -13840069 true "" ""
+"type 3 gas emission" 1.0 0 -1184463 true "" ""
+"type 4 gas emission" 1.0 0 -1664597 true "" ""
 
 MONITOR
 674
@@ -649,10 +681,10 @@ count airplanes
 11
 
 MONITOR
-657
 484
-949
-529
+603
+776
+648
 Departure Cities
 report-departure-cities
 17
@@ -660,15 +692,60 @@ report-departure-cities
 11
 
 MONITOR
-657
-532
-950
-577
+484
+651
+777
+696
 Arrival Cities
 report-arrival-cities
 17
 1
 11
+
+SLIDER
+5
+281
+184
+314
+count-plane-type4
+count-plane-type4
+0
+100
+20.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+0
+374
+188
+407
+custom-fuel-consumption
+custom-fuel-consumption
+0
+50000
+14200.0
+100
+1
+NIL
+HORIZONTAL
+
+SLIDER
+8
+429
+188
+462
+custom-max-takeoff-weight
+custom-max-takeoff-weight
+0
+100000
+50000.0
+1000
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
