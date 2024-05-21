@@ -18,15 +18,28 @@ globals [
   city-coordinates
   max-planes-flying
   city-names
-  selected-departure-cities
-  selected-arrival-cities
-  report-departure-cities    ; Add this global variable for monitor
-  report-arrival-cities      ; Add this global variable for monitor
-  departure-delay  ; Add this global variable
+  selected-departure-cities1
+  selected-departure-cities2
+  selected-departure-cities3
+  selected-departure-cities4
+  selected-arrival-cities1
+  selected-arrival-cities2
+  selected-arrival-cities3
+  selected-arrival-cities4
+  report-departure-cities1
+  report-departure-cities2
+  report-departure-cities3
+  report-departure-cities4
+  report-arrival-cities1
+  report-arrival-cities2
+  report-arrival-cities3
+  report-arrival-cities4
+  departure-delay
   total-gas-emitted-type1
   total-gas-emitted-type2
   total-gas-emitted-type3
   total-gas-emitted-type4
+
 ]
 
 to setup-graph
@@ -62,11 +75,22 @@ to setup
   ]
 
   set city-names ["Paris" "Lyon" "Marseille" "Toulouse" "Bordeaux"]
-
-  set selected-departure-cities []
-  set selected-arrival-cities []
-  set report-departure-cities ""
-  set report-arrival-cities ""
+  set selected-departure-cities1 []
+  set selected-departure-cities2 []
+  set selected-departure-cities3 []
+  set selected-departure-cities4 []
+  set selected-arrival-cities1 []
+  set selected-arrival-cities2 []
+  set selected-arrival-cities3 []
+  set selected-arrival-cities4 []
+  set report-departure-cities1 ""
+  set report-departure-cities2 ""
+  set report-departure-cities3 ""
+  set report-departure-cities4 ""
+  set report-arrival-cities1 ""
+  set report-arrival-cities2 ""
+  set report-arrival-cities3 ""
+  set report-arrival-cities4 ""
 
   set departure-delay 0  ; Initialize the delay timer
 
@@ -93,6 +117,15 @@ to setup
 end
 
 to set-departure-city [city-name]
+  let selected-departure-cities (ifelse-value (selected-plane-type = 1) [selected-departure-cities1]
+                                           (selected-plane-type = 2) [selected-departure-cities2]
+                                           (selected-plane-type = 3) [selected-departure-cities3]
+                                           (selected-plane-type = 4) [selected-departure-cities4])
+  let report-departure-cities (ifelse-value (selected-plane-type = 1) [report-departure-cities1]
+                                           (selected-plane-type = 2) [report-departure-cities2]
+                                           (selected-plane-type = 3) [report-departure-cities3]
+                                           (selected-plane-type = 4) [report-departure-cities4])
+
   ifelse member? city-name selected-departure-cities [
     ; City is already selected, so remove it
     set selected-departure-cities remove city-name selected-departure-cities
@@ -102,14 +135,27 @@ to set-departure-city [city-name]
     set selected-departure-cities lput city-name selected-departure-cities
     set report-departure-cities sentence report-departure-cities city-name
   ]
+
+  ; Update the appropriate global variables
+  if selected-plane-type = 1 [set selected-departure-cities1 selected-departure-cities set report-departure-cities1 report-departure-cities]
+  if selected-plane-type = 2 [set selected-departure-cities2 selected-departure-cities set report-departure-cities2 report-departure-cities]
+  if selected-plane-type = 3 [set selected-departure-cities3 selected-departure-cities set report-departure-cities3 report-departure-cities]
+  if selected-plane-type = 4 [set selected-departure-cities4 selected-departure-cities set report-departure-cities4 report-departure-cities]
+
   display  ; Refresh the monitors
-  ask airplanes [
-    set departure-city city-name
-    set-coordinates
-  ]
 end
 
+
 to set-arrival-city [city-name]
+  let selected-arrival-cities (ifelse-value (selected-plane-type = 1) [selected-arrival-cities1]
+                                           (selected-plane-type = 2) [selected-arrival-cities2]
+                                           (selected-plane-type = 3) [selected-arrival-cities3]
+                                           (selected-plane-type = 4) [selected-arrival-cities4])
+  let report-arrival-cities (ifelse-value (selected-plane-type = 1) [report-arrival-cities1]
+                                         (selected-plane-type = 2) [report-arrival-cities2]
+                                         (selected-plane-type = 3) [report-arrival-cities3]
+                                         (selected-plane-type = 4) [report-arrival-cities4])
+
   ifelse member? city-name selected-arrival-cities [
     ; City is already selected, so remove it
     set selected-arrival-cities remove city-name selected-arrival-cities
@@ -119,13 +165,17 @@ to set-arrival-city [city-name]
     set selected-arrival-cities lput city-name selected-arrival-cities
     set report-arrival-cities sentence report-arrival-cities city-name
   ]
+
+  ; Update the appropriate global variables
+  if selected-plane-type = 1 [set selected-arrival-cities1 selected-arrival-cities set report-arrival-cities1 report-arrival-cities]
+  if selected-plane-type = 2 [set selected-arrival-cities2 selected-arrival-cities set report-arrival-cities2 report-arrival-cities]
+  if selected-plane-type = 3 [set selected-arrival-cities3 selected-arrival-cities set report-arrival-cities3 report-arrival-cities]
+  if selected-plane-type = 4 [set selected-arrival-cities4 selected-arrival-cities set report-arrival-cities4 report-arrival-cities]
+
   display  ; Refresh the monitors
-  ask airplanes [
-    set departure-city one-of selected-departure-cities
-    set arrival-city city-name
-    set-coordinates
-  ]
 end
+
+
 
 to Paris
   set-departure-city "Paris"
@@ -172,11 +222,15 @@ to setup-map
 end
 
 to go
-  if any? airplanes = false [
-    if (length selected-departure-cities = 0) or (length selected-arrival-cities = 0) or (length selected-departure-cities = 1 and length selected-arrival-cities = 1 and first selected-departure-cities = first selected-arrival-cities) [
-      user-message "SELECT AT LEAST ONE DEPARTURE AND ARRIVAL CITY THAT ARE DIFFERENT"
-      stop
-    ]
+  if
+     (((count-plane-type1 != 0) and (length selected-departure-cities1 = 0 or length selected-arrival-cities1 = 0 or (length selected-departure-cities1 = 1 and length selected-arrival-cities1 = 1 and first selected-departure-cities1 = first selected-arrival-cities1))) or
+      ((count-plane-type2 != 0) and (length selected-departure-cities2 = 0 or length selected-arrival-cities2 = 0 or (length selected-departure-cities2 = 1 and length selected-arrival-cities2 = 1 and first selected-departure-cities2 = first selected-arrival-cities2))) or
+      ((count-plane-type3 != 0) and (length selected-departure-cities3 = 0 or length selected-arrival-cities3 = 0 or (length selected-departure-cities3 = 1 and length selected-arrival-cities3 = 1 and first selected-departure-cities3 = first selected-arrival-cities3))) or
+      ((count-plane-type4 != 0) and (length selected-departure-cities4 = 0 or length selected-arrival-cities4 = 0 or (length selected-departure-cities4 = 1 and length selected-arrival-cities4 = 1 and first selected-departure-cities4 = first selected-arrival-cities4)))
+  )
+   [
+    user-message "SELECT AT LEAST ONE DEPARTURE AND ARRIVAL CITY FOR EACH TYPE THAT ARE DIFFERENT"
+    stop
   ]
 
   if departure-delay > 0 [
@@ -199,8 +253,8 @@ to go
 
       set fuel-consumption (ifelse-value (plane-type = 0) [11400] (plane-type = 1) [14400] (plane-type = 2) [2100] (plane-type = 3) [custom-fuel-consumption])
       set max-takeoff-weight (ifelse-value (plane-type = 0) [560000] (plane-type = 1) [116000] (plane-type = 2) [78000] (plane-type = 3) [custom-max-takeoff-weight])
-      set departure-city one-of selected-departure-cities
-      set arrival-city one-of (remove departure-city selected-arrival-cities)
+      set departure-city one-of (ifelse-value (plane-type = 0) [selected-departure-cities1] (ifelse-value (plane-type = 1) [selected-departure-cities2] (ifelse-value (plane-type = 2) [selected-departure-cities3] [selected-departure-cities4])))
+      set arrival-city one-of (ifelse-value (plane-type = 0) [selected-arrival-cities1] (ifelse-value (plane-type = 1) [selected-arrival-cities2] (ifelse-value (plane-type = 2) [selected-arrival-cities3] [selected-arrival-cities4])))
       set-coordinates
       let target-xcor item 1 arrival-coordinates
       let target-ycor item 2 arrival-coordinates
@@ -241,6 +295,8 @@ to go
   do-plot
   tick
 end
+
+
 
 to set-coordinates
   let departure-coordinates get-city-coordinates departure-city
@@ -345,7 +401,7 @@ count-plane-type1
 count-plane-type1
 0
 100
-17.0
+100.0
 1
 1
 NIL
@@ -375,7 +431,7 @@ count-plane-type3
 count-plane-type3
 0
 100
-25.0
+42.0
 1
 1
 NIL
@@ -383,9 +439,9 @@ HORIZONTAL
 
 SLIDER
 11
-537
+506
 183
-570
+539
 time-on-floor
 time-on-floor
 30
@@ -429,7 +485,7 @@ TEXTBOX
 146
 688
 Arrival
-11
+10
 0.0
 1
 
@@ -628,9 +684,9 @@ Airbus A320 (yellow)
 
 TEXTBOX
 13
-514
+483
 163
-537
+506
 Temps passé au sol
 10
 0.0
@@ -681,47 +737,47 @@ count airplanes
 11
 
 MONITOR
+470
+443
+762
 484
-603
-776
-648
-Departure Cities
-report-departure-cities
+Departure Cities (Type 1)
+report-departure-cities1
 17
 1
-11
+10
 
 MONITOR
-484
-651
-777
-696
-Arrival Cities
-report-arrival-cities
+782
+445
+1075
+486
+Arrival Cities (Type 1)
+report-arrival-cities1
 17
 1
-11
+10
 
 SLIDER
-5
-281
-184
-314
+9
+280
+182
+313
 count-plane-type4
 count-plane-type4
 0
 100
-20.0
+100.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-0
-374
-188
-407
+6
+364
+187
+397
 custom-fuel-consumption
 custom-fuel-consumption
 0
@@ -734,9 +790,9 @@ HORIZONTAL
 
 SLIDER
 8
-429
+413
 188
-462
+446
 custom-max-takeoff-weight
 custom-max-takeoff-weight
 0
@@ -746,6 +802,102 @@ custom-max-takeoff-weight
 1
 NIL
 HORIZONTAL
+
+CHOOSER
+272
+495
+410
+540
+selected-plane-type
+selected-plane-type
+1 2 3 4
+0
+
+MONITOR
+471
+505
+762
+546
+Departure Cities (Type 2)
+report-departure-cities2
+17
+1
+10
+
+MONITOR
+469
+565
+761
+606
+Departure Cities (Type 3)
+report-departure-cities3
+17
+1
+10
+
+MONITOR
+469
+622
+760
+663
+Departure Cities (Type 4)
+report-departure-cities4
+17
+1
+10
+
+MONITOR
+783
+506
+1074
+547
+Arrival Cities (Type 2)
+report-arrival-cities2
+17
+1
+10
+
+MONITOR
+783
+565
+1075
+606
+Arrival Cities (Type 3)
+report-arrival-cities3
+17
+1
+10
+
+MONITOR
+782
+622
+1074
+663
+Arrival Cities (Type 4)
+report-arrival-cities4
+17
+1
+10
+
+TEXTBOX
+13
+264
+163
+282
+Custom airplane (pink)
+10
+0.0
+1
+
+TEXTBOX
+13
+341
+163
+359
+Custom airplane variables
+10
+0.0
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
