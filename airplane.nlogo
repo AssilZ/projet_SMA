@@ -75,22 +75,22 @@ to setup
   ]
 
   set city-names ["Paris" "Lyon" "Marseille" "Toulouse" "Bordeaux"]
-  set selected-departure-cities1 []
-  set selected-departure-cities2 []
-  set selected-departure-cities3 []
-  set selected-departure-cities4 []
-  set selected-arrival-cities1 []
-  set selected-arrival-cities2 []
-  set selected-arrival-cities3 []
-  set selected-arrival-cities4 []
-  set report-departure-cities1 ""
-  set report-departure-cities2 ""
-  set report-departure-cities3 ""
-  set report-departure-cities4 ""
-  set report-arrival-cities1 ""
-  set report-arrival-cities2 ""
-  set report-arrival-cities3 ""
-  set report-arrival-cities4 ""
+  set selected-departure-cities1 ["Paris"]
+  set selected-departure-cities2 ["Lyon"]
+  set selected-departure-cities3 ["Marseille"]
+  set selected-departure-cities4 ["Toulouse"]
+  set selected-arrival-cities1 ["Bordeaux"]
+  set selected-arrival-cities2 ["Bordeaux"]
+  set selected-arrival-cities3 ["Paris"]
+  set selected-arrival-cities4 ["Lyon"]
+  set report-departure-cities1 "Paris"
+  set report-departure-cities2 "Lyon"
+  set report-departure-cities3 "Marseille"
+  set report-departure-cities4 "Toulouse"
+  set report-arrival-cities1 "Bordeaux"
+  set report-arrival-cities2 "Bordeaux"
+  set report-arrival-cities3 "Paris"
+  set report-arrival-cities4 "Lyon"
 
   set departure-delay 0  ; Initialize the delay timer
 
@@ -416,7 +416,7 @@ count-plane-type2
 count-plane-type2
 0
 100
-37.0
+67.0
 1
 1
 NIL
@@ -811,7 +811,7 @@ CHOOSER
 selected-plane-type
 selected-plane-type
 1 2 3 4
-0
+1
 
 MONITOR
 471
