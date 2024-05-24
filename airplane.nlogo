@@ -2,7 +2,6 @@ breed [airplanes airplane]
 
 airplanes-own [
   fuel-consumption
-  max-takeoff-weight
   departure-city
   arrival-city
   gas-emitted
@@ -252,13 +251,12 @@ to go
       set color (ifelse-value (plane-type = 0) [red] (plane-type = 1) [green] (plane-type = 2) [yellow] (plane-type = 3) [pink])
 
       set fuel-consumption (ifelse-value (plane-type = 0) [11400] (plane-type = 1) [14400] (plane-type = 2) [2100] (plane-type = 3) [custom-fuel-consumption])
-      set max-takeoff-weight (ifelse-value (plane-type = 0) [560000] (plane-type = 1) [116000] (plane-type = 2) [78000] (plane-type = 3) [custom-max-takeoff-weight])
       set departure-city one-of (ifelse-value (plane-type = 0) [selected-departure-cities1] (ifelse-value (plane-type = 1) [selected-departure-cities2] (ifelse-value (plane-type = 2) [selected-departure-cities3] [selected-departure-cities4])))
       set arrival-city one-of (ifelse-value (plane-type = 0) [selected-arrival-cities1] (ifelse-value (plane-type = 1) [selected-arrival-cities2] (ifelse-value (plane-type = 2) [selected-arrival-cities3] [selected-arrival-cities4])))
       set-coordinates
       let target-xcor item 1 arrival-coordinates
       let target-ycor item 2 arrival-coordinates
-      set total-time (distancexy target-xcor target-ycor) / 0.005
+      set total-time (distancexy target-xcor target-ycor) / 0.005 ; 0.005 pas par ticks
       set plane-counts replace-item plane-type plane-counts (item plane-type plane-counts - 1)
       set departure-time ticks
     ]
@@ -270,10 +268,10 @@ to go
     let target-xcor item 1 arrival-coordinates
     let target-ycor item 2 arrival-coordinates
 
-    (ifelse ticks - departure-time < (total-time / 10) [
-      set gas-emitted (2 * fuel-consumption * 3.1) / total-time
+    (ifelse ticks - departure-time < (total-time / 5) [
+      set gas-emitted (2 * fuel-consumption * 3.1) / total-time ; 1L de kérosène = 3.1 de C02, 2 décollage et 0.5 atterissage, total-time = distancexy ()
     ]
-    ticks - departure-time > (total-time - (total-time / 10)) [
+    ticks - departure-time > (total-time - (total-time / 5)) [
       set gas-emitted (0.5 * fuel-consumption * 3.1) / total-time
     ] [
       set gas-emitted (fuel-consumption * 3.1) / total-time
@@ -401,7 +399,7 @@ count-plane-type1
 count-plane-type1
 0
 100
-100.0
+20.0
 1
 1
 NIL
@@ -416,7 +414,7 @@ count-plane-type2
 count-plane-type2
 0
 100
-67.0
+25.0
 1
 1
 NIL
@@ -431,17 +429,17 @@ count-plane-type3
 count-plane-type3
 0
 100
-42.0
+25.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-11
-506
-183
-539
+9
+408
+181
+441
 time-on-floor
 time-on-floor
 30
@@ -453,10 +451,10 @@ min
 HORIZONTAL
 
 BUTTON
-51
-603
-114
-636
+75
+519
+138
+552
 NIL
 Paris
 NIL
@@ -470,30 +468,30 @@ NIL
 1
 
 TEXTBOX
-13
-575
-163
-593
+37
+491
+187
+509
 Distance
 12
 0.0
 1
 
 TEXTBOX
-14
-670
-146
-688
+38
+586
+170
+604
 Arrival
 10
 0.0
 1
 
 BUTTON
-118
-603
-181
-636
+142
+519
+205
+552
 NIL
 Lyon
 NIL
@@ -507,10 +505,10 @@ NIL
 1
 
 BUTTON
-183
-604
-269
-637
+207
+520
+293
+553
 NIL
 Marseille
 NIL
@@ -524,10 +522,10 @@ NIL
 1
 
 BUTTON
-272
-604
-362
-637
+296
+520
+386
+553
 NIL
 Bordeaux
 NIL
@@ -541,10 +539,10 @@ NIL
 1
 
 BUTTON
-368
-604
-457
-637
+392
+520
+481
+553
 NIL
 Toulouse
 NIL
@@ -558,10 +556,10 @@ NIL
 1
 
 BUTTON
-50
-663
-113
-696
+74
+579
+137
+612
 Paris
 Arrival-City1
 NIL
@@ -575,10 +573,10 @@ NIL
 1
 
 BUTTON
-116
-663
-179
-696
+140
+579
+203
+612
 Lyon
 Arrival-City2
 NIL
@@ -592,10 +590,10 @@ NIL
 1
 
 BUTTON
-182
-663
-268
-696
+206
+579
+292
+612
 Marseille
 Arrival-City3
 NIL
@@ -609,10 +607,10 @@ NIL
 1
 
 BUTTON
-272
-663
-362
-696
+296
+579
+386
+612
 Bordeaux
 Arrival-City4
 NIL
@@ -626,10 +624,10 @@ NIL
 1
 
 BUTTON
-369
-662
-458
-695
+393
+578
+482
+611
 Toulouse
 Arrival-City5
 NIL
@@ -643,10 +641,10 @@ NIL
 1
 
 TEXTBOX
-1
-611
-60
-629
+25
+527
+84
+545
 Departure
 10
 0.0
@@ -683,20 +681,20 @@ Airbus A320 (yellow)
 1
 
 TEXTBOX
-13
-483
-163
-506
-Temps passé au sol
+11
+394
+161
+417
+Time spent on floor
 10
 0.0
 1
 
 MONITOR
-664
-29
-810
-74
+639
+16
+785
+61
 NIL
 total-gas-emitted
 17
@@ -704,10 +702,10 @@ total-gas-emitted
 11
 
 PLOT
-664
-94
-1012
-353
+640
+85
+1158
+418
 Pollution Evolution
 NIL
 NIL
@@ -726,10 +724,10 @@ PENS
 "type 4 gas emission" 1.0 0 -1664597 true "" ""
 
 MONITOR
-674
-372
-786
-417
+810
+15
+922
+60
 Airplanes in air
 count airplanes
 17
@@ -737,10 +735,10 @@ count airplanes
 11
 
 MONITOR
-470
-443
-762
-484
+554
+430
+846
+471
 Departure Cities (Type 1)
 report-departure-cities1
 17
@@ -748,10 +746,10 @@ report-departure-cities1
 10
 
 MONITOR
-782
-445
-1075
-486
+866
+432
+1159
+473
 Arrival Cities (Type 1)
 report-arrival-cities1
 17
@@ -767,57 +765,42 @@ count-plane-type4
 count-plane-type4
 0
 100
-100.0
+25.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-6
-364
-187
-397
+9
+345
+190
+378
 custom-fuel-consumption
 custom-fuel-consumption
 0
 50000
-14200.0
+25600.0
 100
 1
 NIL
 HORIZONTAL
 
-SLIDER
-8
-413
-188
-446
-custom-max-takeoff-weight
-custom-max-takeoff-weight
-0
-100000
-50000.0
-1000
-1
-NIL
-HORIZONTAL
-
 CHOOSER
-272
-495
-410
-540
+396
+429
+534
+474
 selected-plane-type
 selected-plane-type
 1 2 3 4
-1
+0
 
 MONITOR
-471
-505
-762
-546
+555
+492
+846
+533
 Departure Cities (Type 2)
 report-departure-cities2
 17
@@ -825,10 +808,10 @@ report-departure-cities2
 10
 
 MONITOR
-469
-565
-761
-606
+553
+552
+845
+593
 Departure Cities (Type 3)
 report-departure-cities3
 17
@@ -836,10 +819,10 @@ report-departure-cities3
 10
 
 MONITOR
-469
-622
-760
-663
+553
+609
+844
+650
 Departure Cities (Type 4)
 report-departure-cities4
 17
@@ -847,10 +830,10 @@ report-departure-cities4
 10
 
 MONITOR
-783
-506
-1074
-547
+867
+493
+1158
+534
 Arrival Cities (Type 2)
 report-arrival-cities2
 17
@@ -858,10 +841,10 @@ report-arrival-cities2
 10
 
 MONITOR
-783
-565
-1075
-606
+867
+552
+1159
+593
 Arrival Cities (Type 3)
 report-arrival-cities3
 17
@@ -869,10 +852,10 @@ report-arrival-cities3
 10
 
 MONITOR
-782
-622
-1074
-663
+866
+609
+1158
+650
 Arrival Cities (Type 4)
 report-arrival-cities4
 17
@@ -890,11 +873,11 @@ Custom airplane (pink)
 1
 
 TEXTBOX
-13
-341
-163
-359
-Custom airplane variables
+14
+329
+164
+347
+Custom airplane fuel consumption
 10
 0.0
 1
