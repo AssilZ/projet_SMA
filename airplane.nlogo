@@ -1,7 +1,7 @@
 breed [airplanes airplane]
 breed [circles circle]
 
-
+; Define the properties for airplanes
 airplanes-own [
   fuel-consumption
   departure-city
@@ -13,12 +13,13 @@ airplanes-own [
   departure-time
 ]
 
+; Define the properties for circles
 circles-own [
   city-represented
   gas-counter
 ]
 
-
+; Define global variables
 globals [
   total-gas-emitted
   plane-counts
@@ -49,20 +50,22 @@ globals [
   pollution-max-threshold
 ]
 
+; Initialize the pollution evolution graph
 to setup-graph
   clear-all-plots
   set-current-plot "Pollution Evolution"
   plot 0
 end
 
-
+; Setup procedure to initialize the simulation
 to setup
-  clear-all
-  reset-ticks
+  clear-all ; Clear everything
+  reset-ticks ; Reset the tick counter
 
-  resize-world 0 400 0 400
-  __change-topology false false
+  resize-world 0 400 0 400 ; Resize the world dimensions
+  __change-topology false false ; Disable wrapping
 
+  ; Initialize global variables
   set total-gas-emitted 0
   set max-planes-flying 10
 
@@ -71,8 +74,10 @@ to setup
   set total-gas-emitted-type3 0
   set total-gas-emitted-type4 0
 
+  ; Set initial plane counts
   set plane-counts (list count-plane-type1 count-plane-type2 count-plane-type3 count-plane-type4)
 
+  ; Define city coordinates
   set city-coordinates [
     ["Paris" 221 282]
     ["Lyon" 295 145]
@@ -82,6 +87,9 @@ to setup
   ]
 
   set city-names ["Paris" "Lyon" "Marseille" "Toulouse" "Bordeaux"]
+
+  ; Define initial departure and arrival cities for each plane type
+
   set selected-departure-cities1 ["Paris"]
   set selected-departure-cities2 ["Lyon"]
   set selected-departure-cities3 ["Marseille"]
@@ -101,13 +109,15 @@ to setup
 
   set departure-delay 0  ; Initialize the delay timer
 
+  ; Set all patches to white color
   ask patches [
     set pcolor white
   ]
-  setup-map
+  setup-map ; Setup the map
 
-  set pollution-max-threshold 4000000
+  set pollution-max-threshold 4000000 ; Set maximum pollution threshold
 
+  ; Create circles for each city and set their properties
   foreach city-coordinates [
     coordinates ->
     let city-name item 0 coordinates
@@ -134,6 +144,7 @@ to setup
   setup-graph
 end
 
+; Set the selected departure city for the chosen plane type
 to set-departure-city [city-name]
   let selected-departure-cities (ifelse-value (selected-plane-type = 1) [selected-departure-cities1]
                                            (selected-plane-type = 2) [selected-departure-cities2]
@@ -163,7 +174,7 @@ to set-departure-city [city-name]
   display  ; Refresh the monitors
 end
 
-
+; Set the selected arrival city for the chosen plane type
 to set-arrival-city [city-name]
   let selected-arrival-cities (ifelse-value (selected-plane-type = 1) [selected-arrival-cities1]
                                            (selected-plane-type = 2) [selected-arrival-cities2]
@@ -194,7 +205,7 @@ to set-arrival-city [city-name]
 end
 
 
-
+; Procedures to set specific cities for departure and arrival
 to Paris
   set-departure-city "Paris"
 end
@@ -235,11 +246,14 @@ to Arrival-City5
   set-arrival-city "Toulouse"
 end
 
+; Setup the map by importing an image
 to setup-map
   import-pcolors "map-france.png"
 end
 
+; Main procedure to run the simulation
 to go
+  ; Check if at least one departure and arrival city is selected for each plane type and they are different
   if
      (((count-plane-type1 != 0) and (length selected-departure-cities1 = 0 or length selected-arrival-cities1 = 0 or (length selected-departure-cities1 = 1 and length selected-arrival-cities1 = 1 and first selected-departure-cities1 = first selected-arrival-cities1))) or
       ((count-plane-type2 != 0) and (length selected-departure-cities2 = 0 or length selected-arrival-cities2 = 0 or (length selected-departure-cities2 = 1 and length selected-arrival-cities2 = 1 and first selected-departure-cities2 = first selected-arrival-cities2))) or
@@ -251,15 +265,18 @@ to go
     stop
   ]
 
+  ; Decrease the departure delay timer if it is greater than 0
   if departure-delay > 0 [
     set departure-delay departure-delay - 1
   ]
 
+  ; Create new airplanes if the departure delay is 0, fewer than max-planes-flying airplanes exist, and there are plane counts
   if departure-delay = 0 and count airplanes < max-planes-flying and sum plane-counts > 0 [
     create-airplanes 1 [
       set shape "airplane"
       set size 15
 
+      ; Determine the type of airplane randomly from available types
       set plane-type -1
       while [plane-type = -1 or item plane-type plane-counts = 0] [
         let random-type random 4
@@ -267,9 +284,13 @@ to go
           set plane-type random-type
         ]
       ]
+
+      ; Set the color based on the plane type
       set color (ifelse-value (plane-type = 0) [red] (plane-type = 1) [green] (plane-type = 2) [yellow] (plane-type = 3) [pink])
 
+      ; Set fuel consumption based on the plane type
       set fuel-consumption (ifelse-value (plane-type = 0) [11400] (plane-type = 1) [14400] (plane-type = 2) [2100] (plane-type = 3) [custom-fuel-consumption])
+      ; Set departure and arrival cities based on the plane type
       set departure-city one-of (ifelse-value (plane-type = 0) [selected-departure-cities1] (ifelse-value (plane-type = 1) [selected-departure-cities2] (ifelse-value (plane-type = 2) [selected-departure-cities3] [selected-departure-cities4])))
       set arrival-city one-of (ifelse-value (plane-type = 0) [selected-arrival-cities1] (ifelse-value (plane-type = 1) [selected-arrival-cities2] (ifelse-value (plane-type = 2) [selected-arrival-cities3] [selected-arrival-cities4])))
       set-coordinates
@@ -277,7 +298,7 @@ to go
       let target-ycor item 2 arrival-coordinates
       set total-time (distancexy target-xcor target-ycor) / 0.005 ; 0.005 pas par ticks
       set plane-counts replace-item plane-type plane-counts (item plane-type plane-counts - 1)
-      set departure-time ticks
+      set departure-time ticks ; Record the departure time
 
       ; Calculate initial gas emission based on time-on-floor
       let total-ticks-on-floor time-on-floor * 595
@@ -290,15 +311,17 @@ to go
 
     set departure-delay time-on-floor * 200  ; Adjust this value to set the delay durations
   ]
-
+  ; Move airplanes and calculate gas emissions
   ask airplanes [
     let target-xcor item 1 arrival-coordinates
     let target-ycor item 2 arrival-coordinates
 
+    ; Calculate gas emitted based on the flight phase (takeoff, flight, landing)
     (ifelse ticks - departure-time < (departure-time + 5950) [
       set gas-emitted (2 * fuel-consumption * 3.1) / 35643 ; 1L de kérosène = 3.1 de C02, 2 décollage et 0.5 atterissage, total-time = distancexy ()
       let departure-city-name departure-city
       let airplane-gas-emitted gas-emitted
+      ; Update gas counter and color for the departure city
       ask circles with [city-represented = departure-city-name] [
         set gas-counter gas-counter + airplane-gas-emitted
           ask circles [
@@ -324,11 +347,13 @@ to go
       ]
       ]
       ticks - departure-time > (total-time - 5950) [
+        ; Landing phase
         set gas-emitted (0.5 * fuel-consumption * 3.1) / 35643
         let arrival-city-name arrival-city
         let airplane-gas-emitted gas-emitted
+        ; Update gas counter and color for the arrival city
         ask circles with [city-represented = arrival-city-name] [
-          set gas-counter gas-counter + airplane-gas-emitted
+          set gas-counter gas-counter + airplane-gas-emitted ; Increase gas counter for the arrival city
           let gas-level gas-counter
           ifelse gas-level <= 0.2 * pollution-max-threshold [
             set color green
@@ -349,29 +374,32 @@ to go
           ]
         ]
       ] [
+        ; Flight phase
         set gas-emitted (fuel-consumption * 3.1) / 35643
     ])
 
+    ; Update global gas emission counters
     set total-gas-emitted total-gas-emitted + gas-emitted
     if plane-type = 0 [ set total-gas-emitted-type1 total-gas-emitted-type1 + gas-emitted ]
     if plane-type = 1 [ set total-gas-emitted-type2 total-gas-emitted-type2 + gas-emitted ]
     if plane-type = 2 [ set total-gas-emitted-type3 total-gas-emitted-type3 + gas-emitted ]
     if plane-type = 3 [ set total-gas-emitted-type4 total-gas-emitted-type4 + gas-emitted ]
 
+    ; Move airplane forward and die if it reaches the target coordinates
     ifelse distancexy target-xcor target-ycor < 1 [
-      die
+      die ; Remove the airplane if it has reached its destination
     ] [
-      fd 0.005
+      fd 0.005 ; Move the airplane forward
     ]
   ]
 
+  ; Update the pollution evolution plot
   do-plot
+  ; Increment the tick counter
   tick
 end
 
-
-
-
+; Procedure to set coordinates for departure and arrival cities
 to set-coordinates
   let departure-coordinates get-city-coordinates departure-city
   set arrival-coordinates get-arrival-coordinates
@@ -379,14 +407,17 @@ to set-coordinates
   facexy item 1 arrival-coordinates item 2 arrival-coordinates
 end
 
+; Report procedure to get arrival coordinates
 to-report get-arrival-coordinates
   report get-city-coordinates arrival-city
 end
 
+; Report procedure to get city coordinates by name
 to-report get-city-coordinates [city]
   report one-of (filter [ coord -> item 0 coord = city ] city-coordinates)
 end
 
+; Procedure to update the pollution evolution plot
 to do-plot
   set-current-plot "Pollution Evolution"
   set-current-plot-pen "total gas emission"
@@ -432,13 +463,14 @@ GRAPHICS-WINDOW
 ticks
 30.0
 
+; Buttons to control the simulation
 BUTTON
 10
 13
 74
 46
 NIL
-Setup
+Setup ; Button to setup the simulation
 NIL
 1
 T
@@ -455,7 +487,7 @@ BUTTON
 72
 80
 NIL
-Go
+Go ; Button to start or continue the simulation
 T
 1
 T
@@ -466,12 +498,13 @@ NIL
 NIL
 1
 
+; Sliders to adjust parameters
 SLIDER
 12
 121
 184
 154
-count-plane-type1
+count-plane-type1 ; Slider for the count of plane type 1
 count-plane-type1
 0
 100
@@ -486,7 +519,7 @@ SLIDER
 174
 181
 207
-count-plane-type2
+count-plane-type2 ; Slider for the count of plane type 2
 count-plane-type2
 0
 100
@@ -501,7 +534,7 @@ SLIDER
 226
 182
 259
-count-plane-type3
+count-plane-type3 ; Slider for the count of plane type 3
 count-plane-type3
 0
 100
@@ -516,7 +549,7 @@ SLIDER
 408
 181
 441
-time-on-floor
+time-on-floor ; Slider for time spent on the floor
 time-on-floor
 30
 180
@@ -526,13 +559,14 @@ time-on-floor
 min
 HORIZONTAL
 
+; Buttons for selecting departure and arrival cities
 BUTTON
 75
 519
 138
 552
 NIL
-Paris
+Paris ; Button for Paris as departure city
 NIL
 1
 T
@@ -548,7 +582,7 @@ TEXTBOX
 491
 187
 509
-Distance
+Distance ; Textbox for distance label
 12
 0.0
 1
@@ -558,7 +592,7 @@ TEXTBOX
 586
 170
 604
-Arrival
+Arrival ; Textbox for arrival label
 10
 0.0
 1
@@ -569,7 +603,7 @@ BUTTON
 205
 552
 NIL
-Lyon
+Lyon ; Button for Lyon as departure city
 NIL
 1
 T
@@ -586,7 +620,7 @@ BUTTON
 293
 553
 NIL
-Marseille
+Marseille ; Button for Marseille as departure city
 NIL
 1
 T
@@ -603,7 +637,7 @@ BUTTON
 386
 553
 NIL
-Bordeaux
+Bordeaux ; Button for Bordeaux as departure city
 NIL
 1
 T
@@ -620,7 +654,7 @@ BUTTON
 481
 553
 NIL
-Toulouse
+Toulouse ; Button for Toulouse as departure city
 NIL
 1
 T
@@ -637,7 +671,7 @@ BUTTON
 137
 612
 Paris
-Arrival-City1
+Arrival-City1 ; Button for Paris as arrival city
 NIL
 1
 T
@@ -654,7 +688,7 @@ BUTTON
 203
 612
 Lyon
-Arrival-City2
+Arrival-City2 ; Button for Lyon as arrival city
 NIL
 1
 T
@@ -671,7 +705,7 @@ BUTTON
 292
 612
 Marseille
-Arrival-City3
+Arrival-City3 ; Button for Marseille as arrival city
 NIL
 1
 T
@@ -688,7 +722,7 @@ BUTTON
 386
 612
 Bordeaux
-Arrival-City4
+Arrival-City4 ; Button for Bordeaux as arrival city
 NIL
 1
 T
@@ -705,7 +739,7 @@ BUTTON
 482
 611
 Toulouse
-Arrival-City5
+Arrival-City5 ; Button for Toulouse as arrival city
 NIL
 1
 T
@@ -716,6 +750,7 @@ NIL
 NIL
 1
 
+; Textboxes for labeling
 TEXTBOX
 25
 527
@@ -766,17 +801,19 @@ Time spent on floor
 0.0
 1
 
+; Monitors to display real-time values
 MONITOR
 640
 34
 795
 79
 NIL
-total-gas-emitted
+total-gas-emitted ; Monitor for total gas emitted
 17
 1
 11
 
+; Plot to display pollution evolution
 PLOT
 640
 85
@@ -799,12 +836,13 @@ PENS
 "type 3 gas emission" 1.0 0 -1184463 true "" ""
 "type 4 gas emission" 1.0 0 -1664597 true "" ""
 
+; More monitors for various counts and values
 MONITOR
 811
 33
 923
 78
-Airplanes in air
+Airplanes in air ; Monitor for airplanes in air
 count airplanes
 17
 1
@@ -815,7 +853,7 @@ MONITOR
 430
 846
 471
-Departure Cities (Type 1)
+Departure Cities (Type 1) ; Monitor for departure cities of type 1
 report-departure-cities1
 17
 1
@@ -826,18 +864,19 @@ MONITOR
 432
 1159
 473
-Arrival Cities (Type 1)
+Arrival Cities (Type 1) ; Monitor for arrival cities of type 1
 report-arrival-cities1
 17
 1
 10
 
+; Sliders and choosers for more parameters
 SLIDER
 9
 280
 182
 313
-count-plane-type4
+count-plane-type4 ; Slider for the count of plane type 4
 count-plane-type4
 0
 100
@@ -852,7 +891,7 @@ SLIDER
 345
 190
 378
-custom-fuel-consumption
+custom-fuel-consumption ; Slider for custom fuel consumption
 custom-fuel-consumption
 0
 50000
@@ -867,17 +906,18 @@ CHOOSER
 429
 534
 474
-selected-plane-type
+selected-plane-type ; Chooser for selecting plane type
 selected-plane-type
 1 2 3 4
 0
 
+; More monitors for departure and arrival cities of other plane types
 MONITOR
 555
 492
 846
 533
-Departure Cities (Type 2)
+Departure Cities (Type 2) ; Monitor for departure cities of type 2
 report-departure-cities2
 17
 1
@@ -888,7 +928,7 @@ MONITOR
 552
 845
 593
-Departure Cities (Type 3)
+Departure Cities (Type 3) ; Monitor for departure cities of type 3
 report-departure-cities3
 17
 1
@@ -899,7 +939,7 @@ MONITOR
 609
 844
 650
-Departure Cities (Type 4)
+Departure Cities (Type 4) ; Monitor for departure cities of type 4
 report-departure-cities4
 17
 1
@@ -910,7 +950,7 @@ MONITOR
 493
 1158
 534
-Arrival Cities (Type 2)
+Arrival Cities (Type 2) ; Monitor for arrival cities of type 2
 report-arrival-cities2
 17
 1
@@ -921,7 +961,7 @@ MONITOR
 552
 1159
 593
-Arrival Cities (Type 3)
+Arrival Cities (Type 3) ; Monitor for arrival cities of type 3
 report-arrival-cities3
 17
 1
@@ -932,18 +972,19 @@ MONITOR
 609
 1158
 650
-Arrival Cities (Type 4)
+Arrival Cities (Type 4) ; Monitor for arrival cities of type 4
 report-arrival-cities4
 17
 1
 10
 
+; Textboxes for custom airplane parameters
 TEXTBOX
 13
 264
 163
 282
-Custom airplane (pink)
+Custom airplane (pink) ; Label for custom airplane
 10
 0.0
 1
@@ -953,7 +994,7 @@ TEXTBOX
 329
 164
 347
-Custom airplane fuel consumption
+Custom airplane fuel consumption ; Label for custom airplane fuel consumption
 10
 0.0
 1
@@ -963,7 +1004,7 @@ TEXTBOX
 12
 791
 43
-Total C02 Emission (Kg)
+Total C02 Emission (Kg) ; Label for total CO2 emission
 10
 0.0
 1
