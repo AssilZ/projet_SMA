@@ -465,10 +465,10 @@ ticks
 30.0
 
 BUTTON
-10
-13
-74
-46
+2
+14
+65
+47
 NIL
 Setup
 NIL
@@ -482,10 +482,10 @@ NIL
 1
 
 BUTTON
-9
-47
-72
-80
+2
+48
+65
+81
 NIL
 Go
 T
@@ -997,6 +997,16 @@ TEXTBOX
 31
 Total CO2 emission (Kg)
 10
+0.0
+1
+
+TEXTBOX
+73
+13
+223
+85
+TO LAUNCH\n1. Set slider\n2. Click Setup\n3. Choose departure/arrival cities\n4. Click GO\n
+9
 0.0
 1
 
