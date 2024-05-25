@@ -799,10 +799,10 @@ Time spent on floor
 1
 
 MONITOR
-639
-16
-785
-61
+640
+33
+786
+78
 NIL
 total-gas-emitted
 17
@@ -832,10 +832,10 @@ PENS
 "type 4 gas emission" 1.0 0 -1664597 true "" ""
 
 MONITOR
-810
-15
-922
-60
+811
+32
+923
+77
 Airplanes in air
 count airplanes
 17
@@ -986,6 +986,16 @@ TEXTBOX
 164
 347
 Custom airplane fuel consumption
+10
+0.0
+1
+
+TEXTBOX
+645
+13
+795
+31
+Total CO2 emission (Kg)
 10
 0.0
 1
