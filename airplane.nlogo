@@ -1,4 +1,6 @@
 breed [airplanes airplane]
+breed [circles circle]
+
 
 airplanes-own [
   fuel-consumption
@@ -10,6 +12,12 @@ airplanes-own [
   total-time
   departure-time
 ]
+
+circles-own [
+  city-represented
+  gas-counter
+]
+
 
 globals [
   total-gas-emitted
@@ -38,7 +46,7 @@ globals [
   total-gas-emitted-type2
   total-gas-emitted-type3
   total-gas-emitted-type4
-
+  pollution-max-threshold
 ]
 
 to setup-graph
@@ -82,14 +90,14 @@ to setup
   set selected-arrival-cities2 ["Bordeaux"]
   set selected-arrival-cities3 ["Paris"]
   set selected-arrival-cities4 ["Lyon"]
-  set report-departure-cities1 "Paris"
-  set report-departure-cities2 "Lyon"
-  set report-departure-cities3 "Marseille"
-  set report-departure-cities4 "Toulouse"
-  set report-arrival-cities1 "Bordeaux"
-  set report-arrival-cities2 "Bordeaux"
-  set report-arrival-cities3 "Paris"
-  set report-arrival-cities4 "Lyon"
+  set report-departure-cities1 ["Paris"]
+  set report-departure-cities2 ["Lyon"]
+  set report-departure-cities3 ["Marseille"]
+  set report-departure-cities4 ["Toulouse"]
+  set report-arrival-cities1 ["Bordeaux"]
+  set report-arrival-cities2 ["Bordeaux"]
+  set report-arrival-cities3 ["Paris"]
+  set report-arrival-cities4 ["Lyon"]
 
   set departure-delay 0  ; Initialize the delay timer
 
@@ -97,6 +105,8 @@ to setup
     set pcolor white
   ]
   setup-map
+
+  set pollution-max-threshold 4000000
 
   foreach city-coordinates [
     coordinates ->
@@ -110,9 +120,18 @@ to setup
       set size 8
       set label city-name
     ]
+
+    create-circles 1 [
+      setxy x-cor y-cor
+      set city-represented city-name
+      set gas-counter 0
+      set shape "circle"
+      set size 20
+      set color green
+    ]
   ]
+
   setup-graph
-  reset-ticks
 end
 
 to set-departure-city [city-name]
@@ -268,13 +287,61 @@ to go
     let target-xcor item 1 arrival-coordinates
     let target-ycor item 2 arrival-coordinates
 
-    (ifelse ticks - departure-time < (total-time / 5) [
-      set gas-emitted (2 * fuel-consumption * 3.1) / total-time ; 1L de kérosène = 3.1 de C02, 2 décollage et 0.5 atterissage, total-time = distancexy ()
-    ]
-    ticks - departure-time > (total-time - (total-time / 5)) [
-      set gas-emitted (0.5 * fuel-consumption * 3.1) / total-time
-    ] [
-      set gas-emitted (fuel-consumption * 3.1) / total-time
+    (ifelse ticks - departure-time < (departure-time + 5950) [
+      set gas-emitted (2 * fuel-consumption * 3.1) / 35643 ; 1L de kérosène = 3.1 de C02, 2 décollage et 0.5 atterissage, total-time = distancexy ()
+      let departure-city-name departure-city
+      let airplane-gas-emitted gas-emitted
+      ask circles with [city-represented = departure-city-name] [
+        set gas-counter gas-counter + airplane-gas-emitted
+          ask circles [
+          let gas-level gas-counter
+          ifelse gas-level <= 0.2 * pollution-max-threshold [
+            set color green
+          ] [
+            ifelse gas-level <= 0.4 * pollution-max-threshold [
+              set color yellow
+            ] [
+              ifelse gas-level <= 0.6 * pollution-max-threshold [
+                set color orange
+              ] [
+                ifelse gas-level <= 0.8 * pollution-max-threshold [
+                  set color red
+                ] [
+                  set color black
+                ]
+              ]
+            ]
+          ]
+        ]
+      ]
+      ]
+      ticks - departure-time > (total-time - 5950) [
+        set gas-emitted (0.5 * fuel-consumption * 3.1) / 35643
+        let arrival-city-name arrival-city
+        let airplane-gas-emitted gas-emitted
+        ask circles with [city-represented = arrival-city-name] [
+          set gas-counter gas-counter + airplane-gas-emitted
+          let gas-level gas-counter
+          ifelse gas-level <= 0.2 * pollution-max-threshold [
+            set color green
+          ] [
+            ifelse gas-level <= 0.4 * pollution-max-threshold [
+              set color yellow
+            ] [
+              ifelse gas-level <= 0.6 * pollution-max-threshold [
+                set color orange
+              ] [
+                ifelse gas-level <= 0.8 * pollution-max-threshold [
+                  set color red
+                ] [
+                  set color black
+                ]
+              ]
+            ]
+          ]
+        ]
+      ] [
+        set gas-emitted (fuel-consumption * 3.1) / 35643
     ])
 
     set total-gas-emitted total-gas-emitted + gas-emitted
@@ -293,6 +360,7 @@ to go
   do-plot
   tick
 end
+
 
 
 
@@ -399,7 +467,7 @@ count-plane-type1
 count-plane-type1
 0
 100
-20.0
+51.0
 1
 1
 NIL
@@ -414,7 +482,7 @@ count-plane-type2
 count-plane-type2
 0
 100
-25.0
+33.0
 1
 1
 NIL
@@ -429,7 +497,7 @@ count-plane-type3
 count-plane-type3
 0
 100
-25.0
+27.0
 1
 1
 NIL
@@ -765,7 +833,7 @@ count-plane-type4
 count-plane-type4
 0
 100
-25.0
+39.0
 1
 1
 NIL
@@ -780,7 +848,7 @@ custom-fuel-consumption
 custom-fuel-consumption
 0
 50000
-25600.0
+16900.0
 100
 1
 NIL
@@ -794,7 +862,7 @@ CHOOSER
 selected-plane-type
 selected-plane-type
 1 2 3 4
-0
+2
 
 MONITOR
 555
