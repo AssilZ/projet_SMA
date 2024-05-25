@@ -464,14 +464,13 @@ GRAPHICS-WINDOW
 ticks
 30.0
 
-; Buttons to control the simulation
 BUTTON
 10
 13
 74
 46
 NIL
-Setup ; Button to setup the simulation
+Setup
 NIL
 1
 T
@@ -488,7 +487,7 @@ BUTTON
 72
 80
 NIL
-Go ; Button to start or continue the simulation
+Go
 T
 1
 T
@@ -499,17 +498,16 @@ NIL
 NIL
 1
 
-; Sliders to adjust parameters
 SLIDER
 12
 121
 184
 154
-count-plane-type1 ; Slider for the count of plane type 1
+count-plane-type1
 count-plane-type1
 0
 100
-5.0
+63.0
 1
 1
 NIL
@@ -520,11 +518,11 @@ SLIDER
 174
 181
 207
-count-plane-type2 ; Slider for the count of plane type 2
+count-plane-type2
 count-plane-type2
 0
 100
-5.0
+13.0
 1
 1
 NIL
@@ -535,11 +533,11 @@ SLIDER
 226
 182
 259
-count-plane-type3 ; Slider for the count of plane type 3
+count-plane-type3
 count-plane-type3
 0
 100
-5.0
+8.0
 1
 1
 NIL
@@ -550,24 +548,23 @@ SLIDER
 408
 181
 441
-time-on-floor ; Slider for time spent on the floor
+time-on-floor
 time-on-floor
 30
 180
-60.0
+30.0
 1
 1
 min
 HORIZONTAL
 
-; Buttons for selecting departure and arrival cities
 BUTTON
 75
 519
 138
 552
 NIL
-Paris ; Button for Paris as departure city
+Paris
 NIL
 1
 T
@@ -583,7 +580,7 @@ TEXTBOX
 491
 187
 509
-Distance ; Textbox for distance label
+Distance
 12
 0.0
 1
@@ -593,7 +590,7 @@ TEXTBOX
 586
 170
 604
-Arrival ; Textbox for arrival label
+Arrival
 10
 0.0
 1
@@ -604,7 +601,7 @@ BUTTON
 205
 552
 NIL
-Lyon ; Button for Lyon as departure city
+Lyon
 NIL
 1
 T
@@ -621,7 +618,7 @@ BUTTON
 293
 553
 NIL
-Marseille ; Button for Marseille as departure city
+Marseille
 NIL
 1
 T
@@ -638,7 +635,7 @@ BUTTON
 386
 553
 NIL
-Bordeaux ; Button for Bordeaux as departure city
+Bordeaux
 NIL
 1
 T
@@ -655,7 +652,7 @@ BUTTON
 481
 553
 NIL
-Toulouse ; Button for Toulouse as departure city
+Toulouse
 NIL
 1
 T
@@ -672,7 +669,7 @@ BUTTON
 137
 612
 Paris
-Arrival-City1 ; Button for Paris as arrival city
+Arrival-City1
 NIL
 1
 T
@@ -689,7 +686,7 @@ BUTTON
 203
 612
 Lyon
-Arrival-City2 ; Button for Lyon as arrival city
+Arrival-City2
 NIL
 1
 T
@@ -706,7 +703,7 @@ BUTTON
 292
 612
 Marseille
-Arrival-City3 ; Button for Marseille as arrival city
+Arrival-City3
 NIL
 1
 T
@@ -723,7 +720,7 @@ BUTTON
 386
 612
 Bordeaux
-Arrival-City4 ; Button for Bordeaux as arrival city
+Arrival-City4
 NIL
 1
 T
@@ -740,7 +737,7 @@ BUTTON
 482
 611
 Toulouse
-Arrival-City5 ; Button for Toulouse as arrival city
+Arrival-City5
 NIL
 1
 T
@@ -751,7 +748,6 @@ NIL
 NIL
 1
 
-; Textboxes for labeling
 TEXTBOX
 25
 527
@@ -802,19 +798,17 @@ Time spent on floor
 0.0
 1
 
-; Monitors to display real-time values
 MONITOR
-640
-34
-795
-79
+639
+16
+785
+61
 NIL
-total-gas-emitted ; Monitor for total gas emitted
+total-gas-emitted
 17
 1
 11
 
-; Plot to display pollution evolution
 PLOT
 640
 85
@@ -837,13 +831,12 @@ PENS
 "type 3 gas emission" 1.0 0 -1184463 true "" ""
 "type 4 gas emission" 1.0 0 -1664597 true "" ""
 
-; More monitors for various counts and values
 MONITOR
-811
-33
-923
-78
-Airplanes in air ; Monitor for airplanes in air
+810
+15
+922
+60
+Airplanes in air
 count airplanes
 17
 1
@@ -854,7 +847,7 @@ MONITOR
 430
 846
 471
-Departure Cities (Type 1) ; Monitor for departure cities of type 1
+Departure Cities (Type 1)
 report-departure-cities1
 17
 1
@@ -865,23 +858,22 @@ MONITOR
 432
 1159
 473
-Arrival Cities (Type 1) ; Monitor for arrival cities of type 1
+Arrival Cities (Type 1)
 report-arrival-cities1
 17
 1
 10
 
-; Sliders and choosers for more parameters
 SLIDER
 9
 280
 182
 313
-count-plane-type4 ; Slider for the count of plane type 4
+count-plane-type4
 count-plane-type4
 0
 100
-5.0
+77.0
 1
 1
 NIL
@@ -892,11 +884,11 @@ SLIDER
 345
 190
 378
-custom-fuel-consumption ; Slider for custom fuel consumption
+custom-fuel-consumption
 custom-fuel-consumption
 0
 50000
-15500.0
+16900.0
 100
 1
 NIL
@@ -907,18 +899,17 @@ CHOOSER
 429
 534
 474
-selected-plane-type ; Chooser for selecting plane type
+selected-plane-type
 selected-plane-type
 1 2 3 4
-0
+1
 
-; More monitors for departure and arrival cities of other plane types
 MONITOR
 555
 492
 846
 533
-Departure Cities (Type 2) ; Monitor for departure cities of type 2
+Departure Cities (Type 2)
 report-departure-cities2
 17
 1
@@ -929,7 +920,7 @@ MONITOR
 552
 845
 593
-Departure Cities (Type 3) ; Monitor for departure cities of type 3
+Departure Cities (Type 3)
 report-departure-cities3
 17
 1
@@ -940,7 +931,7 @@ MONITOR
 609
 844
 650
-Departure Cities (Type 4) ; Monitor for departure cities of type 4
+Departure Cities (Type 4)
 report-departure-cities4
 17
 1
@@ -951,7 +942,7 @@ MONITOR
 493
 1158
 534
-Arrival Cities (Type 2) ; Monitor for arrival cities of type 2
+Arrival Cities (Type 2)
 report-arrival-cities2
 17
 1
@@ -962,7 +953,7 @@ MONITOR
 552
 1159
 593
-Arrival Cities (Type 3) ; Monitor for arrival cities of type 3
+Arrival Cities (Type 3)
 report-arrival-cities3
 17
 1
@@ -973,19 +964,18 @@ MONITOR
 609
 1158
 650
-Arrival Cities (Type 4) ; Monitor for arrival cities of type 4
+Arrival Cities (Type 4)
 report-arrival-cities4
 17
 1
 10
 
-; Textboxes for custom airplane parameters
 TEXTBOX
 13
 264
 163
 282
-Custom airplane (pink) ; Label for custom airplane
+Custom airplane (pink)
 10
 0.0
 1
@@ -995,17 +985,7 @@ TEXTBOX
 329
 164
 347
-Custom airplane fuel consumption ; Label for custom airplane fuel consumption
-10
-0.0
-1
-
-TEXTBOX
-643
-12
-791
-43
-Total C02 Emission (Kg) ; Label for total CO2 emission
+Custom airplane fuel consumption
 10
 0.0
 1
