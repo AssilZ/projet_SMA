@@ -282,6 +282,7 @@ to go
       ; Calculate initial gas emission based on time-on-floor
       let total-ticks-on-floor time-on-floor * 595
       let initial-gas-emission total-ticks-on-floor * 0.0747  ; Adding initial gas emission based on time spent on the floor
+      set total-gas-emitted total-gas-emitted + initial-gas-emission
       if plane-type = 0 [ set total-gas-emitted-type1 total-gas-emitted-type1 + initial-gas-emission ]
       if plane-type = 1 [ set total-gas-emitted-type2 total-gas-emitted-type2 + initial-gas-emission ]
       if plane-type = 2 [ set total-gas-emitted-type3 total-gas-emitted-type3 + initial-gas-emission ]
