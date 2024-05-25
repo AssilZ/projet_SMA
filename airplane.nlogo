@@ -278,6 +278,14 @@ to go
       set total-time (distancexy target-xcor target-ycor) / 0.005 ; 0.005 pas par ticks
       set plane-counts replace-item plane-type plane-counts (item plane-type plane-counts - 1)
       set departure-time ticks
+
+      ; Calculate initial gas emission based on time-on-floor
+      let total-ticks-on-floor time-on-floor * 595
+      let initial-gas-emission total-ticks-on-floor * 0.0747  ; Adding initial gas emission based on time spent on the floor
+      if plane-type = 0 [ set total-gas-emitted-type1 total-gas-emitted-type1 + initial-gas-emission ]
+      if plane-type = 1 [ set total-gas-emitted-type2 total-gas-emitted-type2 + initial-gas-emission ]
+      if plane-type = 2 [ set total-gas-emitted-type3 total-gas-emitted-type3 + initial-gas-emission ]
+      if plane-type = 3 [ set total-gas-emitted-type4 total-gas-emitted-type4 + initial-gas-emission ]
     ]
 
     set departure-delay time-on-floor * 200  ; Adjust this value to set the delay durations
@@ -467,7 +475,7 @@ count-plane-type1
 count-plane-type1
 0
 100
-51.0
+5.0
 1
 1
 NIL
@@ -482,7 +490,7 @@ count-plane-type2
 count-plane-type2
 0
 100
-33.0
+5.0
 1
 1
 NIL
@@ -497,7 +505,7 @@ count-plane-type3
 count-plane-type3
 0
 100
-27.0
+5.0
 1
 1
 NIL
@@ -512,7 +520,7 @@ time-on-floor
 time-on-floor
 30
 180
-30.0
+60.0
 1
 1
 min
@@ -759,10 +767,10 @@ Time spent on floor
 1
 
 MONITOR
-639
-16
-785
-61
+640
+34
+795
+79
 NIL
 total-gas-emitted
 17
@@ -792,10 +800,10 @@ PENS
 "type 4 gas emission" 1.0 0 -1664597 true "" ""
 
 MONITOR
-810
-15
-922
-60
+811
+33
+923
+78
 Airplanes in air
 count airplanes
 17
@@ -833,7 +841,7 @@ count-plane-type4
 count-plane-type4
 0
 100
-39.0
+5.0
 1
 1
 NIL
@@ -848,7 +856,7 @@ custom-fuel-consumption
 custom-fuel-consumption
 0
 50000
-16900.0
+15500.0
 100
 1
 NIL
@@ -862,7 +870,7 @@ CHOOSER
 selected-plane-type
 selected-plane-type
 1 2 3 4
-2
+0
 
 MONITOR
 555
@@ -946,6 +954,16 @@ TEXTBOX
 164
 347
 Custom airplane fuel consumption
+10
+0.0
+1
+
+TEXTBOX
+643
+12
+791
+43
+Total C02 Emission (Kg)
 10
 0.0
 1
