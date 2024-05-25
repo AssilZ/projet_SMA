@@ -270,7 +270,7 @@ to go
     set departure-delay departure-delay - 1
   ]
 
-  ; Create new airplanes if the departure delay is 0, fewer than max-planes-flying airplanes exist, and there are plane counts
+  ; Create new airplanes if the departure delay is 0, fewer than max-planes-flying airplanes exist, and there are still planes to create
   if departure-delay = 0 and count airplanes < max-planes-flying and sum plane-counts > 0 [
     create-airplanes 1 [
       set shape "airplane"
@@ -302,7 +302,7 @@ to go
 
       ; Calculate initial gas emission based on time-on-floor
       let total-ticks-on-floor time-on-floor * 595
-      let initial-gas-emission total-ticks-on-floor * 0.0747  ; Adding initial gas emission based on time spent on the floor
+      let initial-gas-emission total-ticks-on-floor * 0.0747  ; Adding initial gas emission based on time spent on the floor: 595 ticks = 1 min, and 45 minutes = 2000 Kg of CO2 on floor
       set total-gas-emitted total-gas-emitted + initial-gas-emission
       if plane-type = 0 [ set total-gas-emitted-type1 total-gas-emitted-type1 + initial-gas-emission ]
       if plane-type = 1 [ set total-gas-emitted-type2 total-gas-emitted-type2 + initial-gas-emission ]
@@ -318,7 +318,7 @@ to go
     let target-ycor item 2 arrival-coordinates
 
     ; Calculate gas emitted based on the flight phase (takeoff, flight, landing)
-    (ifelse ticks - departure-time < (departure-time + 5950) [
+    (ifelse ticks - departure-time < (departure-time + 5950) [ ; 595 ticks = 1 min so 5950 = 10 minutes
       set gas-emitted (2 * fuel-consumption * 3.1) / 35643 ; 1L de kérosène = 3.1 de C02, 2 décollage et 0.5 atterissage, total-time = distancexy ()
       let departure-city-name departure-city
       let airplane-gas-emitted gas-emitted
