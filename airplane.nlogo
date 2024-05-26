@@ -507,7 +507,7 @@ count-plane-type1
 count-plane-type1
 0
 100
-63.0
+6.0
 1
 1
 NIL
@@ -522,7 +522,7 @@ count-plane-type2
 count-plane-type2
 0
 100
-34.0
+0.0
 1
 1
 NIL
@@ -537,7 +537,7 @@ count-plane-type3
 count-plane-type3
 0
 100
-8.0
+0.0
 1
 1
 NIL
@@ -552,7 +552,7 @@ time-on-floor
 time-on-floor
 30
 180
-30.0
+90.0
 1
 1
 min
@@ -873,7 +873,7 @@ count-plane-type4
 count-plane-type4
 0
 100
-77.0
+0.0
 1
 1
 NIL
@@ -1005,7 +1005,7 @@ TEXTBOX
 335
 163
 353
-Custon fuel consumption (L/h)
+Custom fuel consumption (L/h)
 10
 0.0
 1
