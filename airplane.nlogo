@@ -522,7 +522,7 @@ count-plane-type2
 count-plane-type2
 0
 100
-13.0
+34.0
 1
 1
 NIL
@@ -881,9 +881,9 @@ HORIZONTAL
 
 SLIDER
 9
-345
+353
 190
-378
+386
 custom-fuel-consumption
 custom-fuel-consumption
 0
@@ -981,16 +981,6 @@ Custom airplane (pink)
 1
 
 TEXTBOX
-14
-329
-164
-347
-Custom airplane fuel consumption
-10
-0.0
-1
-
-TEXTBOX
 645
 13
 795
@@ -1007,6 +997,16 @@ TEXTBOX
 85
 TO LAUNCH\n1. Set slider\n2. Click Setup\n3. Choose departure/arrival cities\n4. Click GO\n
 9
+0.0
+1
+
+TEXTBOX
+13
+335
+163
+353
+Custon fuel consumption (L/h)
+10
 0.0
 1
 
